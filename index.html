@@ -1,0 +1,2631 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#09090b">
+  <title>iPhone 17 Pro · 网页手机模拟器</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", sans-serif;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      --frame: #bbb8b1;
+      --frame-edge: #706f6b;
+      --text: #fff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      color: var(--text);
+      background:
+        radial-gradient(ellipse at 50% 49%, #28282d 0, #151518 38%, #09090b 76%),
+        #09090b;
+    }
+
+    button { font: inherit; color: inherit; }
+
+    .stage {
+      width: 100%;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      perspective: 1300px;
+      padding: 26px;
+    }
+
+    :fullscreen .stage {
+      width: 100%;
+      height: 100svh;
+      min-height: 100svh;
+      padding: 0;
+      perspective: none;
+    }
+
+    :fullscreen .phone {
+      width: 100vw;
+      height: 100svh;
+      max-height: none;
+      min-width: 0;
+      aspect-ratio: auto;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: #07080e;
+      box-shadow: none;
+      transform: none;
+    }
+
+    :fullscreen .phone::before,
+    :fullscreen .side-button,
+    :fullscreen .power-button { display: none; }
+    :fullscreen .screen { border-radius: 0; }
+
+    .phone {
+      position: relative;
+      width: min(390px, calc((100svh - 48px) * .462));
+      aspect-ratio: 402 / 874;
+      min-width: 290px;
+      max-height: calc(100svh - 34px);
+      padding: 9px;
+      border: 1px solid #e8e4d8;
+      border-radius: 58px;
+      background:
+        linear-gradient(118deg, #f8f6ee 0%, #96948e 5%, #e8e5dc 8%, #a9a69f 11%, #cfccc4 48%, #777671 91%, #e3e0d7 96%, #8d8a84 100%);
+      box-shadow:
+        0 0 0 1px #343431,
+        0 0 0 3px #62615c,
+        0 34px 100px #000b,
+        0 12px 30px #0009,
+        inset 0 0 0 1px #fff8;
+      transform: rotateX(1deg);
+    }
+
+    .phone::before {
+      content: "";
+      position: absolute;
+      z-index: 4;
+      inset: 3px;
+      border-radius: 55px;
+      border: 1px solid #fff3;
+      pointer-events: none;
+    }
+
+    .side-button {
+      position: absolute;
+      z-index: 1;
+      width: 3px;
+      border-radius: 5px 0 0 5px;
+      background: linear-gradient(90deg, #565550, #dedbd2, #777670);
+      left: -4px;
+      box-shadow: -1px 0 1px #fff5;
+    }
+    .action-button { top: 134px; height: 29px; }
+    .volume-up { top: 190px; height: 53px; }
+    .volume-down { top: 258px; height: 53px; }
+    .power-button {
+      position: absolute;
+      z-index: 1;
+      width: 3px;
+      height: 81px;
+      right: -4px;
+      top: 210px;
+      border-radius: 0 5px 5px 0;
+      background: linear-gradient(90deg, #e1ded5, #65645f, #a7a49d);
+    }
+
+    .screen {
+      position: relative;
+      isolation: isolate;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      border-radius: 49px;
+      background: #07080e;
+      box-shadow: inset 0 0 0 1px #000;
+      touch-action: manipulation;
+    }
+
+    .wallpaper {
+      position: absolute;
+      z-index: -2;
+      inset: 0;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse at 53% 44%, #f6a0ad 0%, #de6486 16%, #a42b71 34%, transparent 58%),
+        radial-gradient(ellipse at 79% 26%, #66d8e6 0%, #158aab 18%, transparent 45%),
+        radial-gradient(ellipse at 24% 76%, #e9b64d 0%, #c24e37 19%, transparent 50%),
+        linear-gradient(146deg, #111e3c 3%, #172d4a 36%, #432251 67%, #081427 100%);
+      filter: saturate(1.09);
+      transition: filter .6s ease, transform .8s ease;
+    }
+
+    .wallpaper::before, .wallpaper::after {
+      content: "";
+      position: absolute;
+      width: 120%;
+      height: 55%;
+      left: -10%;
+      top: 32%;
+      border-radius: 50%;
+      filter: blur(26px);
+      transform: rotate(-24deg);
+      background: linear-gradient(90deg, transparent, #ffcc8966 24%, #ff8492b5 45%, #6df4e9a1 70%, transparent);
+    }
+    .wallpaper::after {
+      top: 52%;
+      left: -18%;
+      transform: rotate(25deg);
+      opacity: .8;
+      filter: blur(44px);
+      background: linear-gradient(90deg, transparent, #f783a4c9 32%, #ffc86c99 63%, transparent);
+    }
+
+    .screen::after {
+      content: "";
+      position: absolute;
+      z-index: 8;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(145deg, #fff1 0%, transparent 23%, transparent 76%, #0002);
+      border-radius: inherit;
+    }
+
+    .status-bar {
+      position: absolute;
+      z-index: 12;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 48px;
+      padding: 14px 28px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      font-size: 15px;
+      font-weight: 650;
+      letter-spacing: -.3px;
+      text-shadow: 0 1px 5px #0007;
+      pointer-events: none;
+    }
+
+    .status-right { display: flex; align-items: center; gap: 6px; margin-top: 1px; }
+    .status-right svg { display: block; }
+    .status-right button { pointer-events: auto; }
+    .fullscreen-toggle {
+      width: 25px;
+      height: 22px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #fff;
+      font-size: 15px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .island {
+      position: absolute;
+      z-index: 15;
+      top: 11px;
+      left: 50%;
+      width: 124px;
+      height: 36px;
+      transform: translateX(-50%);
+      border-radius: 24px;
+      background: #000;
+      box-shadow: 0 0 0 1px #ffffff08;
+      transition: width .35s ease, height .35s ease, top .35s ease;
+      cursor: pointer;
+    }
+    .island.expanded { width: 250px; height: 74px; top: 10px; }
+    .camera-dot {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      right: 12px;
+      top: 13px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #26384b, #07090d 72%);
+      box-shadow: inset 0 0 0 1px #19202c;
+      transition: opacity .2s;
+    }
+    .island.expanded .camera-dot { opacity: 0; }
+    .island-content { display: none; }
+    .island.expanded .island-content {
+      display: flex;
+      height: 100%;
+      padding: 12px 17px;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #ddd;
+    }
+    .island-art { font-size: 24px; }
+    .island-wave { color: #9c79ed; letter-spacing: 2px; font-size: 15px; }
+
+    .view {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      visibility: hidden;
+      transform: scale(1.025);
+      transition: opacity .24s ease, transform .3s ease, visibility .24s;
+    }
+    .view.active { opacity: 1; visibility: visible; transform: scale(1); }
+
+    .lock-screen {
+      text-align: center;
+      padding-top: 88px;
+      cursor: pointer;
+    }
+    .lock-date { font-size: 16px; font-weight: 550; letter-spacing: .2px; }
+    .lock-clock {
+      margin-top: 1px;
+      font-size: clamp(74px, 23vw, 102px);
+      line-height: 1.12;
+      font-weight: 300;
+      letter-spacing: -7px;
+      font-variant-numeric: tabular-nums;
+      text-shadow: 0 2px 24px #0002;
+    }
+    .lock-widgets {
+      display: flex;
+      justify-content: center;
+      gap: 9px;
+      margin: 12px auto 0;
+    }
+    .weather-widget {
+      width: 144px;
+      height: 63px;
+      border-radius: 19px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: #17192b51;
+      backdrop-filter: blur(18px);
+      font-size: 12px;
+      text-align: left;
+      box-shadow: inset 0 0 0 1px #ffffff0d;
+    }
+    .weather-icon { font-size: 27px; }
+    .weather-temp { font-size: 22px; font-weight: 500; }
+    .lock-hint {
+      position: absolute;
+      bottom: 94px;
+      width: 100%;
+      font-size: 13px;
+      color: #ffffffce;
+      text-shadow: 0 1px 8px #000;
+      animation: hint 2s ease-in-out infinite;
+    }
+    @keyframes hint { 50% { opacity: .58; } }
+    .lock-controls {
+      position: absolute;
+      bottom: 35px;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 30px;
+    }
+    .round-control {
+      width: 46px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      border: 1px solid #ffffff3b;
+      background: #16172060;
+      backdrop-filter: blur(14px);
+      cursor: pointer;
+      font-size: 20px;
+      transition: background .2s, transform .2s;
+    }
+    .round-control:hover { background: #ffffff35; transform: scale(1.07); }
+
+    .home-screen { padding: 70px 20px 34px; }
+    .home-pages {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      touch-action: pan-y;
+    }
+    .home-page {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      transform: translateX(100%);
+      transition: transform .32s cubic-bezier(.22,.75,.25,1);
+    }
+    .home-page.active { transform: translateX(0); }
+    .app-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      column-gap: 13px;
+      row-gap: 21px;
+    }
+    .app-button {
+      min-width: 0;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      text-shadow: 0 1px 6px #0009;
+      transition: transform .18s ease;
+    }
+    .app-button:active { transform: scale(.88); }
+    .app-icon {
+      width: 57px;
+      height: 57px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      box-shadow: 0 4px 11px #0005, inset 0 0 0 1px #ffffff19;
+      font-size: 29px;
+      text-shadow: none;
+      position: relative;
+    }
+    .app-name { width: 67px; font-size: 11px; line-height: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .calendar-icon { background: #f8f8fb; color: #202027; font-size: 10px; font-weight: 700; }
+    .calendar-icon b { font-size: 25px; line-height: 24px; color: #e64947; font-weight: 400; }
+    .photos-icon { background: #fff; font-size: 31px; }
+    .camera-icon { background: linear-gradient(145deg, #515663, #18191c); font-size: 31px; }
+    .maps-icon { background: linear-gradient(140deg, #bce7bc, #fff 47%, #f3d9b2); }
+    .clock-icon { background: #121319; font-size: 32px; border: 2px solid #303139; }
+    .weather-icon-app { background: linear-gradient(145deg, #61bafa, #4776d5); }
+    .settings-icon { background: linear-gradient(145deg, #c8cbd1, #727780); }
+    .store-icon { background: linear-gradient(145deg, #4db5ff, #2663ce); }
+    .notes-icon { background: linear-gradient(#fff 0 27%, #ffdf57 27% 100%); color: #333; font-size: 27px; }
+    .health-icon { background: #fff; color: #f05462; font-size: 33px; }
+    .wallet-icon { background: linear-gradient(145deg, #424a56, #161a21); }
+    .wuliao-icon { background: linear-gradient(145deg, #a4f0ce, #43c890); font-size: 32px; }
+    .home-indicator {
+      position: absolute;
+      z-index: 18;
+      bottom: 8px;
+      left: 50%;
+      width: 135px;
+      height: 5px;
+      transform: translateX(-50%);
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      transition: width .2s, background .2s;
+    }
+    .home-indicator:hover { width: 145px; }
+    .page-dots {
+      position: absolute;
+      z-index: 2;
+      bottom: 101px;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+    }
+    .page-dot {
+      width: 6px;
+      height: 6px;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: #ffffff80;
+      cursor: pointer;
+    }
+    .page-dot.active { background: #fff; }
+    .dock {
+      position: absolute;
+      bottom: 24px;
+      left: 13px;
+      right: 13px;
+      height: 82px;
+      padding: 10px 12px;
+      border-radius: 27px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      align-items: center;
+      background: #ffffff27;
+      backdrop-filter: blur(26px) saturate(1.5);
+      box-shadow: inset 0 0 0 1px #ffffff20;
+    }
+    .dock .app-button { gap: 0; }
+    .dock .app-icon { width: 56px; height: 56px; }
+    .dock .app-name { display: none; }
+    .badge {
+      position: absolute;
+      top: -4px;
+      right: calc(50% - 33px);
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      display: grid;
+      place-items: center;
+      border: 1.5px solid #f5f5f7;
+      border-radius: 10px;
+      background: #ff3b30;
+      color: white;
+      font-size: 10px;
+      text-shadow: none;
+    }
+
+    .app-view {
+      position: absolute;
+      z-index: 10;
+      inset: 0;
+      background: #f5f5f7;
+      color: #111;
+      transform: translateY(105%);
+      transition: transform .42s cubic-bezier(.22,.8,.25,1);
+      overflow: auto;
+      scrollbar-width: none;
+    }
+    .app-view::-webkit-scrollbar { display: none; }
+    .app-view.open { transform: translateY(0); }
+    .wuliao-app { overflow: hidden; background: #f3f5f4; }
+    .wu-root { position: absolute; inset: 0; display: flex; flex-direction: column; color: #202321; }
+    .wu-header {
+      z-index: 2;
+      flex: 0 0 auto;
+      height: 94px;
+      padding: 49px 16px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f8faf9;
+      border-bottom: 1px solid #e8ebe9;
+    }
+    .wu-header h2 { margin: 0; font-size: 17px; font-weight: 650; }
+    .wu-header-button {
+      width: 34px;
+      height: 34px;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: #252a27;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    .wu-list { flex: 1; overflow: auto; background: #fff; }
+    .wu-contact {
+      width: 100%;
+      min-height: 76px;
+      padding: 11px 15px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 0;
+      border-bottom: 1px solid #f0f1f0;
+      background: #fff;
+      color: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+    .wu-avatar {
+      width: 48px;
+      height: 48px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      border-radius: 13px;
+      background: linear-gradient(145deg, #ffd89b, #f3a34f);
+      font-size: 29px;
+    }
+    .wu-contact-copy { min-width: 0; flex: 1; }
+    .wu-contact-title { display: flex; justify-content: space-between; gap: 8px; font-size: 15px; }
+    .wu-contact-title time { flex: 0 0 auto; color: #9a9e9b; font-size: 11px; }
+    .wu-preview { margin-top: 6px; overflow: hidden; color: #979b98; font-size: 13px; white-space: nowrap; text-overflow: ellipsis; }
+    .wu-discover { flex: 1; overflow: auto; padding: 14px; background: #f3f5f4; }
+    .wu-moments-link {
+      width: 100%;
+      min-height: 84px;
+      padding: 13px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 0;
+      border-radius: 14px;
+      background: #fff;
+      color: #202321;
+      text-align: left;
+      cursor: pointer;
+    }
+    .wu-moments-link .wu-avatar { width: 54px; height: 54px; }
+    .wu-moments-link-copy { min-width: 0; flex: 1; }
+    .wu-moments-link-copy b, .wu-moments-link-copy span { display: block; }
+    .wu-moments-link-copy span { margin-top: 5px; color: #929793; font-size: 12px; }
+    .wu-moments-feed { flex: 1; overflow: auto; background: #f5f6f5; }
+    .wu-avatar-photo { overflow: hidden; padding: 0; border: 0; cursor: pointer; }
+    .wu-avatar-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .wu-contact-list { flex: 1; overflow: auto; background: #fff; }
+    .wu-contact-description { margin-top: 5px; overflow: hidden; color: #979b98; font-size: 12px; white-space: nowrap; text-overflow: ellipsis; }
+    .wu-cover {
+      position: relative;
+      height: 150px;
+      padding: 16px;
+      display: flex;
+      align-items: flex-end;
+      background:
+        linear-gradient(0deg, #0008, transparent 70%),
+        radial-gradient(ellipse at 75% 38%, #e6ba89, transparent 35%),
+        linear-gradient(140deg, #516854, #a4a481 55%, #3b5250);
+      color: #fff;
+    }
+    .wu-cover-profile { display: flex; align-items: center; gap: 10px; text-shadow: 0 1px 5px #0009; }
+    .wu-cover-profile .wu-avatar { border: 2px solid #fff; }
+    .wu-cover-profile .wu-avatar-photo { border: 2px solid #fff; }
+    .wu-post { padding: 16px 14px; border-bottom: 1px solid #e8ebe8; background: #fff; }
+    .wu-post-top { display: flex; align-items: center; gap: 10px; }
+    .wu-post-top .wu-avatar { width: 40px; height: 40px; font-size: 24px; }
+    .wu-post-author { color: #515fb1; font-size: 14px; font-weight: 650; }
+    .wu-post-time { margin-top: 4px; color: #999e9a; font-size: 11px; }
+    .wu-post-copy { margin: 11px 0; color: #282d29; font-size: 14px; line-height: 1.65; white-space: pre-line; }
+    .wu-post-photos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin: 9px 0; }
+    .wu-post-photos img { display: block; width: 100%; aspect-ratio: 1; border-radius: 3px; background: #e6e9e6; object-fit: cover; }
+    .wu-post-photo-single { display: block; width: min(220px, 62vw); aspect-ratio: 1; margin: 9px 0; border-radius: 4px; background: #e6e9e6; object-fit: cover; }
+    .wu-post-actions { display: flex; justify-content: flex-end; gap: 7px; margin-top: 9px; }
+    .wu-like-button {
+      min-width: 36px;
+      height: 27px;
+      padding: 0 9px;
+      border: 0;
+      border-radius: 7px;
+      background: #eef0ef;
+      color: #59615b;
+      cursor: pointer;
+    }
+    .wu-like-button.liked { background: #e7f6eb; color: #229a54; }
+    .wu-social { padding: 9px 10px; border-radius: 5px; background: #f4f6f4; color: #5b65a3; font-size: 12px; line-height: 1.65; }
+    .wu-likers { font-weight: 550; }
+    .wu-comment { color: #454a46; }
+    .wu-comment b { color: #5965a6; font-weight: 550; }
+    .wu-moments-blank { padding: 22px 10px; color: #8d938e; text-align: center; font-size: 12px; }
+    .wu-profile-page, .wu-wallet-page, .wu-contacts-page { flex: 1; overflow: auto; background: #f3f5f4; }
+    .wu-profile-banner {
+      min-height: 156px;
+      padding: 30px 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      background: #fff;
+    }
+    .wu-profile-avatar {
+      width: 66px;
+      height: 66px;
+      display: grid;
+      flex: 0 0 auto;
+      place-items: center;
+      border-radius: 15px;
+      background: linear-gradient(145deg, #f8d7b4, #dfa16b);
+      font-size: 38px;
+    }
+    .wu-profile-copy { min-width: 0; flex: 1; }
+    .wu-profile-copy strong { display: block; font-size: 20px; }
+    .wu-profile-copy span { display: block; margin-top: 7px; color: #898e8b; font-size: 12px; }
+    .wu-profile-chevron { color: #a4a8a5; font-size: 22px; }
+    .wu-profile-section { margin-top: 11px; background: #fff; }
+    .wu-profile-row {
+      width: 100%;
+      min-height: 54px;
+      padding: 0 17px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 0;
+      border-bottom: 1px solid #f0f1f0;
+      background: #fff;
+      color: #282c29;
+      font: inherit;
+      font-size: 14px;
+      text-align: left;
+      cursor: pointer;
+    }
+    .wu-profile-row:last-child { border-bottom: 0; }
+    .wu-profile-row-icon { width: 23px; color: #37a66c; text-align: center; font-size: 18px; }
+    .wu-profile-row-note { margin-left: auto; color: #a4a8a5; font-size: 12px; }
+    .wu-friend-profile { flex: 1; overflow: auto; padding-bottom: 12px; background: #f3f5f4; }
+    .wu-friend-hero { position: relative; min-height: 204px; padding: 80px 17px 17px; display: flex; align-items: flex-end; gap: 13px; background: linear-gradient(0deg,#18251dcc,transparent 70%), linear-gradient(135deg,#9ac7ae,#f2d9bd 55%,#c9dae5); color: #fff; }
+    .wu-friend-hero .wu-avatar-photo { width: 66px; height: 66px; border: 2px solid #fff; border-radius: 10px; }
+    .wu-friend-name { padding-bottom: 5px; font-size: 21px; font-weight: 650; text-shadow: 0 1px 4px #0006; }
+    .wu-friend-facts { margin-top: 11px; padding: 14px 16px; background: #fff; color: #5b615c; font-size: 12px; line-height: 1.7; }
+    .wu-friend-section { margin-top: 11px; padding: 14px 15px; background: #fff; }
+    .wu-friend-section-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 11px; font-size: 14px; font-weight: 600; }
+    .wu-friend-moment-previews { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; }
+    .wu-friend-moment-preview { display: block; width: 100%; aspect-ratio: 1; padding: 0; overflow: hidden; border: 0; border-radius: 4px; background: #e6e9e6; cursor: pointer; }
+    .wu-friend-moment-preview img { width: 100%; height: 100%; display: block; object-fit: cover; }
+    .wu-friend-empty { padding: 15px 3px; color: #9a9e9b; font-size: 12px; }
+    .wu-friend-actions { flex: 0 0 auto; display: flex; gap: 8px; padding: 10px 12px max(12px, env(safe-area-inset-bottom)); border-top: 1px solid #e8ebe9; background: #fafbfa; }
+    .wu-friend-action { min-height: 39px; flex: 1; border: 0; border-radius: 8px; background: #eef4ef; color: #318b59; font-size: 12px; cursor: pointer; }
+    .wu-friend-action.primary { background: #2caf65; color: #fff; }
+    .wu-wallet-card {
+      margin: 18px 15px;
+      padding: 23px 20px;
+      border-radius: 17px;
+      background: linear-gradient(135deg, #2d9870, #46b98a);
+      box-shadow: 0 8px 20px #267e5c25;
+      color: #fff;
+    }
+    .wu-wallet-card-label { font-size: 13px; opacity: .9; }
+    .wu-wallet-card-balance { margin-top: 14px; font-size: 35px; font-weight: 650; letter-spacing: .3px; }
+    .wu-wallet-card-caption { margin-top: 8px; font-size: 11px; opacity: .82; }
+    .wu-wallet-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 7px 10px 15px; background: #fff; }
+    .wu-wallet-action { padding: 11px 2px; border: 0; background: transparent; color: #414743; font-size: 11px; cursor: pointer; }
+    .wu-wallet-action span { display: block; margin-bottom: 7px; color: #35a876; font-size: 21px; }
+    .wu-wallet-note { margin: 14px 16px; color: #959a96; font-size: 11px; line-height: 1.5; text-align: center; }
+    .wu-tabs {
+      flex: 0 0 auto;
+      min-height: 62px;
+      padding: 7px 10px max(10px, env(safe-area-inset-bottom));
+      display: flex;
+      justify-content: space-around;
+      background: #fafbfa;
+      border-top: 1px solid #e8ebe9;
+    }
+    .wu-tab { min-width: 55px; border: 0; background: transparent; color: #818783; font-size: 10px; cursor: pointer; }
+    .wu-tab span { display: block; margin-bottom: 3px; font-size: 19px; }
+    .wu-tab.active { color: #20a66b; }
+    .wu-thread { flex: 1; overflow: auto; padding: 15px 12px 10px; background: #ecefed; }
+    .wu-time { margin: 5px 0 18px; color: #9a9e9b; text-align: center; font-size: 11px; }
+    .wu-message { display: flex; align-items: flex-start; gap: 8px; margin: 14px 0; }
+    .wu-message.outgoing { flex-direction: row-reverse; }
+    .wu-message .wu-avatar { width: 38px; height: 38px; border-radius: 10px; font-size: 23px; }
+    .wu-chat-photo { display: block; width: min(220px, 56vw); max-height: 270px; border-radius: 5px; object-fit: cover; }
+    .wu-time { padding-top: 2px; }
+    .wu-message-time { margin: 18px 0; color: #9a9e9b; text-align: center; font-size: 11px; }
+    .wu-story-choices { display: grid; gap: 8px; margin: 14px 0 18px 46px; }
+    .wu-story-choice {
+      min-height: 40px;
+      padding: 8px 12px;
+      border: 1px solid #d5e8d9;
+      border-radius: 10px;
+      background: #fff;
+      color: #27864d;
+      font-size: 13px;
+      text-align: left;
+      cursor: pointer;
+    }
+    .wu-story-choice:disabled { opacity: .6; cursor: default; }
+    .wu-deleted-ending { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 22px 0; color: #777d79; font-size: 13px; }
+    .wu-deleted-icon { width: 23px; height: 23px; display: grid; place-items: center; border-radius: 50%; background: #e5484d; color: #fff; font-size: 16px; font-weight: 700; }
+    .wu-transfer-overlay { position: absolute; z-index: 6; inset: 0; display: flex; flex-direction: column; background: #f3f5f4; color: #202321; }
+    .wu-transfer-page-header { height: 94px; flex: 0 0 auto; padding: 49px 16px 10px; display: flex; align-items: center; justify-content: space-between; background: #f8faf9; border-bottom: 1px solid #e8ebe9; }
+    .wu-transfer-page-header strong { font-size: 17px; }
+    .wu-transfer-page-back { width: 34px; height: 34px; border: 0; background: transparent; color: #252a27; font-size: 24px; cursor: pointer; }
+    .wu-transfer-page-body { flex: 1; overflow: auto; padding: 20px 16px; }
+    .wu-transfer-demo-note { margin: 0 0 12px; color: #878d89; font-size: 11px; line-height: 1.5; text-align: center; }
+    .wu-transfer-recipient { padding: 17px; border-radius: 12px; background: #fff; font-size: 14px; }
+    .wu-transfer-recipient small { display: block; margin-top: 5px; color: #969b97; font-size: 11px; }
+    .wu-transfer-entry { margin-top: 12px; padding: 18px 16px; border-radius: 12px; background: #fff; }
+    .wu-transfer-entry label { display: block; color: #737974; font-size: 13px; }
+    .wu-transfer-amount-input { width: 100%; margin-top: 15px; padding: 0 0 10px; border: 0; border-bottom: 1px solid #e6e9e6; outline: none; background: transparent; color: #242925; font-size: 34px; font-weight: 600; }
+    .wu-transfer-balance { margin-top: 12px; color: #858b86; font-size: 12px; }
+    .wu-transfer-error { min-height: 18px; margin: 9px 0 0; color: #d04444; font-size: 12px; }
+    .wu-transfer-pay { width: 100%; min-height: 46px; margin-top: 18px; border: 0; border-radius: 10px; background: #18a66a; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; }
+    .wu-transfer-pay:disabled { background: #b7c8bb; cursor: default; }
+    .wu-transfer-available { margin-top: 14px; color: #a0a5a1; font-size: 10px; line-height: 1.5; text-align: center; }
+    .wu-transfer-special-note { margin: 12px 0 0; color: #8b6a36; font-size: 11px; text-align: center; }
+    .wu-bubble {
+      max-width: 76%;
+      padding: 10px 12px;
+      border: 1px solid #e2e5e3;
+      border-radius: 5px 15px 15px 15px;
+      background: #fff;
+      color: #252825;
+      font-size: 15px;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+      white-space: pre-line;
+    }
+    .wu-message.outgoing .wu-bubble { border-color: #9ce49c; border-radius: 15px 5px 15px 15px; background: #a5e9a1; }
+    .wu-bubble.wu-audio-bubble { width: var(--wu-audio-width, 88px); min-width: 78px; padding: 10px 12px; }
+    .wu-audio-button {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+    }
+    .wu-audio-icon { font-size: 17px; line-height: 1; }
+    .wu-audio-duration { color: #555b56; font-size: 12px; }
+    .wu-message.outgoing .wu-audio-duration { color: #466648; }
+    .wu-transfer {
+      width: min(230px, 62vw);
+      padding: 13px 15px 11px;
+      border-radius: 7px;
+      background: #f3a83b;
+      color: #fff;
+    }
+    .wu-transfer-main { display: flex; align-items: center; gap: 10px; }
+    .wu-transfer-icon { font-size: 27px; }
+    .wu-transfer-amount { font-size: 22px; font-weight: 600; }
+    .wu-transfer-note { margin-top: 4px; font-size: 12px; }
+    .wu-transfer-footer { margin-top: 11px; padding-top: 7px; border-top: 1px solid #ffffff55; font-size: 10px; opacity: .9; }
+    .wu-message.outgoing .wu-transfer { background: #f3a83b; }
+    .wu-composer {
+      flex: 0 0 auto;
+      padding: 9px 10px max(12px, env(safe-area-inset-bottom));
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      border-top: 1px solid #e1e4e2;
+      background: #f8faf9;
+    }
+    .wu-tool {
+      width: 34px;
+      height: 36px;
+      flex: 0 0 auto;
+      border: 1px solid #cbd1cd;
+      border-radius: 50%;
+      background: transparent;
+      color: #616863;
+      font-size: 19px;
+      cursor: pointer;
+    }
+    .wu-input {
+      min-width: 0;
+      height: 38px;
+      flex: 1;
+      padding: 0 12px;
+      border: 0;
+      border-radius: 8px;
+      outline: none;
+      background: #fff;
+      color: #202321;
+      font-size: 15px;
+    }
+    .wu-send { padding: 8px 11px; border: 0; border-radius: 8px; background: #55bd70; color: #fff; font-size: 13px; cursor: pointer; }
+    .wu-send:disabled { background: #c4d5c7; cursor: default; }
+    .wu-notice { padding: 8px 12px; color: #7a807c; text-align: center; font-size: 12px; }
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      min-height: 92px;
+      padding: 54px 22px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f5f5f7ed;
+      backdrop-filter: blur(18px);
+    }
+    .app-header h2 { margin: 0; font-size: 27px; letter-spacing: -.7px; }
+    .app-close {
+      width: 30px;
+      height: 30px;
+      border: 0;
+      border-radius: 50%;
+      background: #e5e5ea;
+      color: #555;
+      font-size: 19px;
+      cursor: pointer;
+    }
+    .app-body { padding: 12px 18px 60px; }
+    .card {
+      padding: 16px;
+      margin-bottom: 12px;
+      border-radius: 18px;
+      background: #fff;
+      box-shadow: 0 1px 3px #0000000a;
+    }
+    .muted { color: #8e8e93; font-size: 13px; }
+    .message-row { display: flex; align-items: center; gap: 12px; }
+    .avatar {
+      width: 43px;
+      height: 43px;
+      border-radius: 50%;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(145deg, #b3a5ed, #7773ce);
+      color: white;
+      font-size: 18px;
+    }
+    .message-copy { min-width: 0; flex: 1; }
+    .message-copy b, .message-copy span { display: block; }
+    .message-copy span { margin-top: 4px; overflow: hidden; color: #888; font-size: 13px; white-space: nowrap; text-overflow: ellipsis; }
+    .bubble {
+      width: fit-content;
+      max-width: 85%;
+      margin: 11px 0;
+      padding: 10px 14px;
+      border-radius: 19px;
+      background: #e9e9eb;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+    .bubble.mine { margin-left: auto; background: #1685ff; color: white; }
+    .sms-row {
+      width: 100%;
+      border: 0;
+      color: #202124;
+      text-align: left;
+      cursor: pointer;
+    }
+    .sms-row .avatar { background: linear-gradient(145deg, #a9d8ff, #638cdb); }
+    .sms-thread-copy { padding: 12px 4px; color: #5d6065; font-size: 12px; line-height: 1.5; text-align: center; }
+    .sms-back {
+      margin: 0 0 12px;
+      padding: 6px 0;
+      border: 0;
+      background: transparent;
+      color: #1685ff;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    .sms-demo-label {
+      display: inline-block;
+      margin: 0 0 7px;
+      padding: 3px 8px;
+      border-radius: 10px;
+      background: #fff3d8;
+      color: #805c16;
+      font-size: 11px;
+    }
+    .wu-login {
+      position: absolute;
+      z-index: 3;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 25px;
+      background: radial-gradient(ellipse at 50% 20%, #dff3ea, #f3f5f4 62%);
+      color: #1c1c1e;
+    }
+    .wu-login-card {
+      width: 100%;
+      padding: 24px 20px;
+      border: 1px solid #ffffffc9;
+      border-radius: 26px;
+      background: #ffffffdc;
+      box-shadow: 0 14px 40px #18352a1c;
+      text-align: center;
+    }
+    .wu-login-icon {
+      width: 58px;
+      height: 58px;
+      margin: 0 auto 13px;
+      display: grid;
+      place-items: center;
+      border-radius: 19px;
+      background: linear-gradient(145deg, #65e36f, #18b73c);
+      font-size: 31px;
+    }
+    .wu-login-card h3 { margin: 0; font-size: 23px; }
+    .wu-login-card p { margin: 8px 0 18px; color: #73777b; font-size: 13px; line-height: 1.5; }
+    .wu-account { margin: 0 0 17px; color: #373a3d; font-size: 14px; }
+    .wu-code-input {
+      width: 100%;
+      height: 48px;
+      padding: 0 14px;
+      border: 1px solid #d6d9dc;
+      border-radius: 13px;
+      outline: none;
+      background: #fff;
+      color: #1c1c1e;
+      font: inherit;
+      font-size: 20px;
+      letter-spacing: 8px;
+      text-align: center;
+    }
+    .wu-code-input:focus { border-color: #34a853; box-shadow: 0 0 0 3px #34a85322; }
+    .wu-auth-button {
+      width: 100%;
+      min-height: 45px;
+      margin-top: 11px;
+      border: 0;
+      border-radius: 13px;
+      background: #25a85a;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .wu-auth-button.secondary { margin-top: 9px; background: #edf5ef; color: #20864a; }
+    .wu-login-status { min-height: 18px; margin: 12px 0 0 !important; color: #d04444 !important; font-size: 12px !important; }
+    .wu-demo-note { margin: 13px 0 0 !important; color: #92969b !important; font-size: 11px !important; }
+    .wu-code-overlay {
+      position: absolute;
+      z-index: 5;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: #10111466;
+      backdrop-filter: blur(7px);
+    }
+    .wu-code-dialog {
+      width: min(290px, 100%);
+      padding: 21px 19px 17px;
+      border: 1px solid #ffffff9c;
+      border-radius: 22px;
+      background: #f5f5f7f2;
+      box-shadow: 0 16px 50px #0003;
+      color: #202124;
+      text-align: center;
+    }
+    .wu-code-dialog h4 { margin: 0 0 7px; font-size: 16px; }
+    .wu-code-dialog p { margin: 5px 0; color: #6b6d72; font-size: 12px; }
+    .wu-code-value { margin: 15px 0; color: #17181a; font-size: 34px; font-weight: 650; letter-spacing: 7px; }
+    .wu-copy-code {
+      width: 100%;
+      padding: 10px;
+      border: 0;
+      border-radius: 12px;
+      background: #1685ff;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .wu-close-code {
+      width: 100%;
+      margin-top: 8px;
+      padding: 9px;
+      border: 0;
+      border-radius: 12px;
+      background: #e7e9ed;
+      color: #42454a;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .wu-code-countdown { margin-top: 11px !important; color: #8b8d91 !important; }
+    .input-row { display: flex; gap: 8px; margin-top: 15px; }
+    .input-row input {
+      min-width: 0;
+      flex: 1;
+      padding: 11px 14px;
+      border: 1px solid #dddde2;
+      border-radius: 22px;
+      outline: none;
+      background: #fff;
+      color: #222;
+    }
+    .send-button, .primary-button {
+      border: 0;
+      border-radius: 18px;
+      padding: 9px 15px;
+      background: #1685ff;
+      color: white;
+      cursor: pointer;
+    }
+    .settings-row { display: flex; align-items: center; gap: 12px; padding: 12px 1px; border-bottom: 1px solid #ededf0; font-size: 15px; }
+    .settings-row:last-child { border-bottom: 0; }
+    .settings-symbol { width: 29px; height: 29px; display: grid; place-items: center; border-radius: 8px; color: white; background: #3787f6; }
+    .settings-arrow { margin-left: auto; color: #aaa; font-size: 19px; }
+    .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; margin: -12px -18px; }
+    .photo-tile {
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      font-size: 33px;
+      background: linear-gradient(145deg, #f4a16e, #9363bf 53%, #328eb0);
+    }
+    .photo-tile:nth-child(3n+2) { background: linear-gradient(145deg, #75c4d2, #518caa, #edb772); }
+    .photo-tile:nth-child(3n) { background: linear-gradient(145deg, #f0c77b, #d07179, #684e8e); }
+    .camera-app { background: #08090c; color: white; height: 100%; overflow: hidden; }
+    .camera-app .app-header { background: #08090c; color: white; }
+    .camera-app .app-close { background: #292a2e; color: white; }
+    .camera-preview {
+      position: absolute;
+      inset: 95px 0 0;
+      background:
+        radial-gradient(ellipse at 60% 41%, #ffcf886b, transparent 20%),
+        linear-gradient(150deg, #344f55, #829073 33%, #c69b6b 46%, #314954 69%, #18242f);
+    }
+    .camera-controls { position: absolute; bottom: 44px; left: 0; right: 0; display: flex; justify-content: center; align-items: center; gap: 35px; }
+    .shutter { width: 66px; height: 66px; border: 4px solid white; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 2px #555; cursor: pointer; }
+    .flash-button { border: 0; background: transparent; font-size: 23px; cursor: pointer; }
+    .safari-bar { width: 100%; padding: 11px 15px; border: 0; border-radius: 14px; background: #e9e9ed; color: #45454a; text-align: left; font: inherit; font-size: 13px; }
+    .safari-search-history { margin-top: 9px; overflow: hidden; border-radius: 13px; background: #fff; box-shadow: 0 5px 18px #20202712; }
+    .safari-search-history[hidden] { display: none; }
+    .safari-history-title { padding: 11px 13px 7px; color: #898991; font-size: 11px; }
+    .safari-history-item { width: 100%; min-height: 42px; padding: 9px 13px; border: 0; border-top: 1px solid #eeeeF1; background: #fff; color: #25252a; font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+    .safari-history-item:hover { background: #f5f5f8; }
+    .safari-hero { padding: 45px 8px 27px; text-align: center; }
+    .safari-hero .big-compass { font-size: 57px; }
+    .quick-links { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: center; font-size: 12px; }
+    .quick-link { padding: 14px 3px; border-radius: 16px; background: #fff; }
+    .quick-link i { display: grid; place-items: center; width: 35px; height: 35px; margin: 0 auto 7px; border-radius: 11px; background: #e9f2ff; color: #2585e9; font-size: 20px; font-style: normal; }
+    .control-center {
+      position: absolute;
+      z-index: 11;
+      inset: 0;
+      padding: 63px 17px 30px;
+      background: #10131bdc;
+      backdrop-filter: blur(35px) saturate(1.5);
+      transform: translateY(-105%);
+      transition: transform .38s cubic-bezier(.2,.8,.2,1);
+    }
+    .control-center.open { transform: translateY(0); }
+    .cc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+    .cc-tile { min-height: 115px; padding: 14px; border-radius: 22px; background: #ffffff26; box-shadow: inset 0 0 0 1px #ffffff0c; }
+    .cc-connectivity { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .cc-button { width: 42px; height: 42px; display: grid; place-items: center; border: 0; border-radius: 50%; background: #ffffff28; font-size: 20px; cursor: pointer; }
+    .cc-button.on { background: #1685ff; }
+    .cc-label { margin-top: 8px; font-size: 12px; color: #ffffffe0; }
+    .cc-brightness { margin-top: 12px; height: 49px; display: flex; align-items: center; padding: 0 16px; border-radius: 19px; background: linear-gradient(90deg, #fff 67%, #ffffff48 67%); color: #555; font-size: 22px; }
+    .cc-volume { margin-top: 10px; height: 49px; display: flex; align-items: center; padding: 0 16px; border-radius: 19px; background: linear-gradient(90deg, #ffffffd9 42%, #ffffff48 42%); color: #555; font-size: 21px; }
+    .cc-footer { margin-top: 19px; text-align: center; font-size: 12px; color: #ffffffa9; }
+
+    @media (max-height: 730px) {
+      .stage { padding: 12px; }
+      .phone { width: min(350px, calc((100svh - 24px) * .462)); border-radius: 48px; }
+      .screen { border-radius: 40px; }
+      .phone::before { border-radius: 45px; }
+      .home-screen { padding-top: 61px; }
+      .app-grid { row-gap: 13px; }
+      .app-icon { width: 51px; height: 51px; }
+      .dock { height: 72px; }
+      .dock .app-icon { width: 50px; height: 50px; }
+      .page-dots { bottom: 91px; }
+      .lock-screen { padding-top: 70px; }
+      .lock-clock { font-size: 82px; }
+    }
+    @media (max-width: 500px) {
+      body { background: #09090b; }
+      .stage { padding: 0; }
+      .phone {
+        width: min(100vw, calc(100svh * .462));
+        height: min(100svh, calc(100vw / .462));
+        max-height: 100svh;
+        min-width: 0;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        background: transparent;
+        aspect-ratio: auto;
+        transform: none;
+      }
+      .phone::before, .side-button, .power-button { display: none; }
+      .screen { border-radius: 0; }
+      .status-bar { padding-top: max(14px, env(safe-area-inset-top)); }
+      .home-indicator { bottom: max(8px, env(safe-area-inset-bottom)); }
+    }
+    @media (min-width: 501px) {
+      .wu-root { bottom: 20px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="stage">
+    <div class="phone" aria-label="iPhone 17 Pro 模拟器">
+      <span class="side-button action-button"></span>
+      <span class="side-button volume-up"></span>
+      <span class="side-button volume-down"></span>
+      <span class="power-button"></span>
+      <section class="screen" id="screen">
+        <div class="wallpaper"></div>
+        <div class="status-bar">
+          <span id="statusTime">9:41</span>
+          <span class="status-right" aria-label="蜂窝网络、Wi-Fi、电池">
+            <button class="fullscreen-toggle" id="fullscreenToggle" aria-label="进入全屏" title="进入全屏">⛶</button>
+            <svg width="17" height="14" viewBox="0 0 18 14" fill="white" aria-hidden="true"><rect x="1" y="9" width="3" height="4" rx="1"/><rect x="5" y="6" width="3" height="7" rx="1"/><rect x="9" y="3" width="3" height="10" rx="1"/><rect x="13" y="0" width="3" height="13" rx="1"/></svg>
+            <svg width="17" height="14" viewBox="0 0 18 14" fill="white" aria-hidden="true"><path d="M1 4.1C5.4.4 12.6.4 17 4.1L9 13z"/><path d="M4.2 7.3c2.7-2.2 6.9-2.2 9.6 0L9 13z" fill="#ffffffb8"/></svg>
+            <svg width="25" height="14" viewBox="0 0 27 15" fill="none" aria-hidden="true"><rect x=".7" y=".7" width="22" height="13.6" rx="4" stroke="white" stroke-width="1.4"/><rect x="3" y="3" width="17.5" height="9" rx="2.2" fill="white"/><path d="M24.5 5v5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+          </span>
+        </div>
+        <button class="island" id="island" aria-label="展开灵动岛">
+          <span class="camera-dot"></span>
+          <span class="island-content"><span class="island-art">♫</span><span>正在播放<br><b>午夜城市 · Lo-fi Radio</b></span><span class="island-wave">▂ ▅ ▃ ▆</span></span>
+        </button>
+
+        <section class="view lock-screen active" id="lockScreen" aria-label="锁定屏幕">
+          <div class="lock-date" id="lockDate">10月27日 星期二</div>
+          <div class="lock-clock" id="lockClock">9:41</div>
+          <div class="lock-widgets">
+            <div class="weather-widget"><span class="weather-icon">☀️</span><span><span class="weather-temp">22°</span><br><span>晴朗 · 北京</span></span></div>
+          </div>
+          <div class="lock-hint">轻点或向上滑动以解锁</div>
+          <div class="lock-controls">
+            <button class="round-control" id="flashlight" aria-label="手电筒">◉</button>
+            <button class="round-control" id="lockCamera" aria-label="打开相机">📷</button>
+          </div>
+        </section>
+
+        <section class="view home-screen" id="homeScreen" aria-label="主屏幕">
+          <div class="home-pages" id="homePages">
+            <section class="home-page active" aria-label="主屏幕第一页"><div class="app-grid" id="appGrid"></div></section>
+            <section class="home-page" aria-label="主屏幕第二页"><div class="app-grid" id="secondaryGrid"></div></section>
+          </div>
+          <div class="page-dots" aria-label="主屏幕页面">
+            <button class="page-dot active" data-page="0" aria-label="第一页"></button>
+            <button class="page-dot" data-page="1" aria-label="第二页"></button>
+          </div>
+          <div class="dock" id="dock"></div>
+        </section>
+
+        <section class="app-view" id="appView" aria-label="应用"></section>
+
+        <section class="control-center" id="controlCenter" aria-label="控制中心">
+          <div class="cc-grid">
+            <div class="cc-tile">
+              <div class="cc-connectivity">
+                <button class="cc-button on" aria-label="飞行模式">✈</button>
+                <button class="cc-button on" aria-label="蜂窝网络">◉</button>
+                <button class="cc-button on" aria-label="Wi-Fi">⌁</button>
+                <button class="cc-button" aria-label="蓝牙">ᛒ</button>
+              </div>
+            </div>
+            <div class="cc-tile">
+              <strong>正在播放</strong>
+              <div style="font-size:12px;margin-top:8px;color:#ffffffbd">午夜城市 · Lo-fi Radio</div>
+              <div style="display:flex;justify-content:space-between;margin-top:13px;font-size:19px"><span>◀</span><span>Ⅱ</span><span>▶</span></div>
+            </div>
+          </div>
+          <div class="cc-brightness">☼</div>
+          <div class="cc-volume">♫</div>
+          <div class="cc-grid" style="margin-top:11px">
+            <button class="cc-tile cc-button" aria-label="专注模式" style="width:auto;height:68px;border-radius:20px">☾ <span style="font-size:12px;margin-left:5px">专注模式</span></button>
+            <button class="cc-tile cc-button" aria-label="屏幕镜像" style="width:auto;height:68px;border-radius:20px">▣ <span style="font-size:12px;margin-left:5px">屏幕镜像</span></button>
+          </div>
+          <div class="cc-footer">从底部向上轻扫以关闭</div>
+        </section>
+        <div class="home-indicator" id="homeIndicator" aria-label="返回主屏幕"></div>
+      </section>
+    </div>
+  </main>
+  <script>
+    (() => {
+      const apps = [
+        { id: "messages", name: "信息", icon: "💬", style: "linear-gradient(145deg,#65e36f,#18b73c)", badge: "6" },
+        { id: "calendar", name: "日历", icon: '<span>周二</span><b>27</b>', style: "calendar-icon" },
+        { id: "photos", name: "照片", icon: "🌈", style: "photos-icon" },
+        { id: "camera", name: "相机", icon: "📷", style: "camera-icon" },
+        { id: "maps", name: "地图", icon: "🗺️", style: "maps-icon" },
+        { id: "clock", name: "时钟", icon: "◷", style: "clock-icon" },
+        { id: "weather", name: "天气", icon: "☀️", style: "weather-icon-app" },
+        { id: "settings", name: "设置", icon: "⚙️", style: "settings-icon" },
+        { id: "store", name: "App Store", icon: "A", style: "store-icon" },
+        { id: "notes", name: "备忘录", icon: "📝", style: "notes-icon" },
+        { id: "health", name: "健康", icon: "♥", style: "health-icon" },
+        { id: "wallet", name: "钱包", icon: "▣", style: "wallet-icon" },
+        { id: "wuliao", name: "吴聊", icon: "😺", style: "wuliao-icon" }
+      ];
+      const dockApps = [
+        { id: "phone", name: "电话", icon: "☎", style: "linear-gradient(145deg,#71e282,#22bd54)" },
+        { id: "safari", name: "Safari", icon: "🧭", style: "linear-gradient(145deg,#fff,#eaf5ff)" },
+        { id: "messages", name: "信息", icon: "💬", style: "linear-gradient(145deg,#65e36f,#18b73c)", badge: "6" },
+        { id: "music", name: "音乐", icon: "♫", style: "linear-gradient(145deg,#ff647b,#d8204d)" }
+      ];
+      const $ = (selector) => document.querySelector(selector);
+      const lockScreen = $("#lockScreen");
+      const homeScreen = $("#homeScreen");
+      const appView = $("#appView");
+      const controlCenter = $("#controlCenter");
+      let unlocked = false;
+      let swipeStart = null;
+      let flashlightOn = false;
+      let homePageIndex = 0;
+      let wuLoggedIn = false;
+      let wuOtp = "";
+      let previousWuOtp = "";
+      let wuWalletBalance = 912678;
+      const demoSmsMessages = [
+        { sender: "淘宝特惠", icon: "淘", time: "刚刚", text: "【模拟广告】今日好物限时优惠，精选日用品正在促销。此内容仅供界面演示，不含真实活动或链接。" },
+        { sender: "天猫品牌日", icon: "猫", time: "刚刚", text: "【模拟广告】天猫品牌日活动提醒：示例商品优惠信息已送达。此内容仅供界面演示，不含真实活动或链接。" },
+        { sender: "第五人格", icon: "Ⅴ", time: "刚刚", text: "【模拟推广】第五人格虚构活动提醒：登录游戏查看本周演示内容。此短信为界面样例，不代表真实活动。" },
+        { sender: "菜鸟裹裹", icon: "裹", time: "刚刚", text: "【模拟取件通知】您的演示包裹已到达示例驿站，取件码：0000（无效演示码，请勿用于实际取件）。" },
+        { sender: "霸王茶姬", icon: "茶", time: "刚刚", text: "【模拟广告】霸王茶姬新品宣传示例：来一杯喜欢的茶，开启轻松下午。此内容仅供界面演示。" },
+        { sender: "天猫超市", icon: "超", time: "刚刚", text: "【模拟广告】天猫超市今日优惠提醒：虚构促销消息再来一条。此内容仅供界面演示，不含真实活动或链接。" }
+      ];
+      const wuMessages = [
+        { time: "昨天 18:00" },
+        { text: "我肚肚饿，能不能……\n给小谷买个包子吃呗。", outgoing: false },
+        { transfer: { amount: 100, note: "宝宝放心吃" }, outgoing: true },
+        { time: "昨天 19:00" },
+        { text: "今天多少斤了？", outgoing: true },
+        { imagePath: "小清纯聊天/称体重.png", outgoing: false },
+        { text: "就不告诉你！", outgoing: false }
+      ];
+      const wuAudioFiles = [
+        "两个猫一起吴.mp3", "卖萌.mp3", "可爱.mp3", "吴老.mp3", "喊饿.mp3", "基米斗.mp3",
+        "大喊.mp3", "大喊大叫.mp3", "天子吴.mp3", "委屈.mp3", "委屈2.mp3", "委屈3.mp3",
+        "威胁.mp3", "威胁2.mp3", "婉转吴.mp3", "平静.mp3", "恳求.mp3", "悲伤.mp3",
+        "惨叫.mp3", "惨叫2.mp3", "撒娇.mp3", "生气.mp3", "生气2.mp3", "痛苦.mp3",
+        "耍赖.mp3", "耿直.mp3", "难过.mp3"
+      ];
+      let wuCrushStoryPhase = "idle";
+      let wuCrushUserVoiceCount = 0;
+      let wuCrushReplyVoiceCount = 0;
+      let wuXiaomiStoryPhase = "idle";
+      let wuXiaomiUserVoiceCount = 0;
+      let wuXiaomiReplyVoiceCount = 0;
+      let wuXiaomiChoiceSet = "initial";
+      const wuStoryResetLength = wuMessages.length;
+      const wuContactMessages = new Map([
+        ["小米米", [
+          { time: "昨天 12:00" },
+          { text: "小米看看", outgoing: true },
+          { imagePath: "小米米聊天/趴凳子.png", imageAlt: "小米米趴在凳子上的照片", outgoing: false },
+          { text: "小米臭", outgoing: true },
+          { text: "小米不臭", outgoing: false }
+        ]]
+      ]);
+      const wuXiaomiStoryResetLength = wuContactMessages.get("小米米").length;
+      const momentPosts = [
+        { text: "今日份小谷：把阳光揣进兜里，再把自己晒成一颗暖呼呼的小面包。☀️", photo: 1, comments: ["这颗面包可以抱走吗", "小谷已进入充电模式"] },
+        { text: "纸箱不是空的，里面住着一只正在值班的小猫咪。请投递一条鱼鱼。📦", photo: 2, comments: ["快递员已送达小鱼干", "里面那位请签收摸摸"] },
+        { text: "偷吃被发现的时候，只要把眼睛睁圆一点点，人类就会忘记刚才要说什么。😼", photo: 3, comments: ["这招对我也有效", "证据确凿但可爱无罪"] },
+        { text: "我不是在发呆，我是在认真观察空气里有没有飘来罐罐的味道。👀", photo: 4, comments: ["侦查范围扩大到厨房", "小鼻子雷达启动"] },
+        { text: "今天的运动量：从床头滚到床尾，再从床尾滚回床头。满分！🛏️", photo: 5, comments: ["运动健将认证", "建议补充一小口罐罐"] },
+        { text: "被窝里有一朵小谷云，摸起来软软的，醒来会呼噜。☁️", photo: 6, comments: ["想预约一朵云", "请问可以续住吗"] },
+        { text: "我把小爪爪藏好啦！找到了也不许笑，这是最新款手套。🐾", photo: 7, comments: ["猫猫手套限定款", "这双手套会踩奶吗"] },
+        { text: "人类说要称体重，我说那就先拍张照留念，数字嘛——就不告诉你！🤫", photo: 8, comments: ["保密工作做得很好", "小谷的秘密要用小鱼干换"] },
+        { text: "今天认真盯着窗外看了很久，云朵走得好慢，刚好够我打一个盹。🌥️", photo: 9, comments: ["云朵也在看你", "午睡冠军又拿金牌"] },
+        { text: "玩具老鼠今天跑得不够快，我决定给它放个假，明天再继续追。🐭", photo: 10, comments: ["老鼠员工获得调休", "猫老板真贴心"] },
+        { text: "我和毯子达成协议：它负责暖，我负责可爱。🤝", photo: 11, comments: ["这份工作我也想应聘", "合作非常愉快"] },
+        { text: "认真盯着零食柜三分钟，柜门没有开。看来还得再认真一点。🍪", photo: 12, comments: ["专注力满分", "柜门：我压力好大"] },
+        { text: "今天的尾巴心情很好，走到哪里都像一面小旗子。🚩", photo: 13, comments: ["小谷出巡啦", "可爱指数一路飘红"] },
+        { text: "我把下巴放在人类手上，这样他就没办法继续忙，只能摸摸我。💛", photo: 14, comments: ["安排得明明白白", "人类请立即执行"] },
+        { text: "晚安啦，把今天最后一个呼噜送给你。明天也要记得喜欢我喔。🌙", photo: 15, comments: ["晚安小谷", "收到了，回你一个大抱抱"] }
+      ];
+      const xiaomiMomentPosts = [
+        { text: "今天是小可爱本人上线时间！先卖个萌，再等姐姐投喂猫条～😽", photo: 1, photoFolder: "小米米照片", comments: ["猫条补给已安排", "这个小表情犯规啦"] },
+        { text: "我的声音明明这么可爱，叫一声就应该获得一根猫条，对吧？喵～🎵", photo: 2, photoFolder: "小米米照片", comments: ["申请循环播放小米米的声音", "一根怎么够，要两根"] },
+        { text: "今天发现我的脚脚好大！走路自带啪嗒啪嗒音效，气势不能输。🐾", photo: 3, photoFolder: "小米米照片", comments: ["大脚脚踩出可爱节拍", "这叫稳稳的幸福感"] },
+        { text: "姐姐刚坐下，我就轻轻拍了她一下：快看我呀！我不是捣蛋，我是在打招呼。🤏", photo: 4, photoFolder: "小米米照片", comments: ["姐姐收到小米米专属提醒", "拍完记得蹭蹭和好"] },
+        { text: "今天也去找爸爸妈妈玩了，大家都好忙，我只好挨个拍拍他们，提醒一下家里有个小可爱。💕", photo: 5, photoFolder: "小米米照片", comments: ["全家注意：可爱巡逻开始", "爸爸妈妈快来陪玩"] },
+        { text: "衣柜里有件睡衣看起来很适合我。先叼出来研究一下，时尚小猫要走自己的路。👕", photo: 6, photoFolder: "小米米照片", comments: ["今日穿搭：睡衣搬运工", "人类的衣柜已被接管"] },
+        { text: "叼了个小东西回来，放在门口给主人看：这是我今天的战利品，也是我的小礼物。🎁", photo: 7, photoFolder: "小米米照片", comments: ["小米米快递准时送达", "礼物虽小，心意很大"] },
+        { text: "邻居家的草草长得真精神，我只是帮忙检查一下新鲜度，绝对没有偷吃很多。🌿", photo: 8, photoFolder: "小米米照片", comments: ["草草质检员今日上岗", "下次记得给邻居留一点"] },
+        { text: "路上有人把我认成小野猪！我明明是圆滚滚、软乎乎、会撒娇的小可爱呀。🐗", photo: 9, photoFolder: "小米米照片", comments: ["野猪怎么会这么会卖萌", "这是限量版小米米猪猪"] },
+        { text: "今天认真看小朋友玩耍，他们笑起来真好听。我坐在旁边负责可爱陪伴。🧸", photo: 10, photoFolder: "小米米照片", comments: ["小朋友观察员好认真", "陪伴工作表现优秀"] },
+        { text: "蟑螂跑来吃我的饭？没关系啦，我是和平派，给它留一点点也可以。🍚", comments: ["小米米心肠软软的", "饭饭记得收好哦"] },
+        { text: "看到蜘蛛就要勇敢一点！虽然听说蜘蛛会抓蟑螂，但我还是决定保护大家。🕷️", comments: ["勇敢的小小守护员", "蜘蛛：我也有点紧张"] },
+        { text: "今天帮家里人跑腿啦！小东西叼回来、地面巡逻完毕，我是家里的小助手。🧹", comments: ["全能小帮手奖励猫条", "辛苦啦，来贴贴"] },
+        { text: "一天结束：卖萌成功，家人都笑了。明天继续做大家最喜欢的小可爱！🌙", comments: ["晚安小米米", "明天也要一起开心呀"] }
+      ];
+      const momentNames = ["小鱼干管理员", "窗台常客", "纸箱收藏家", "隔壁橘同学", "夜巡保安", "猫薄荷观察员", "人类室友", "罐头鉴定师", "楼下小白", "毛线球专家", "午睡冠军", "晚风邮差"];
+      const wuContacts = [
+        { name: "crush", avatar: "头像/小谷.png", description: "一只可爱的小猫", hasMoments: true },
+        { name: "小米米", avatar: "头像/小米.png", description: "小可爱本人，猫条爱好者", hasMoments: true },
+        { name: "天子", avatar: "头像/天子.png", description: "新朋友", hasMoments: false }
+      ];
+
+      function makeAppButton(app) {
+        const button = document.createElement("button");
+        button.className = "app-button";
+        button.type = "button";
+        button.setAttribute("aria-label", app.name);
+        const icon = document.createElement("span");
+        icon.className = "app-icon";
+        if (app.style.startsWith("linear-gradient")) icon.style.background = app.style;
+        else icon.classList.add(...app.style.split(" "));
+        icon.innerHTML = app.icon;
+        if (app.badge) {
+          const badge = document.createElement("span");
+          badge.className = "badge";
+          badge.textContent = app.badge;
+          button.append(icon, badge);
+        } else button.append(icon);
+        const name = document.createElement("span");
+        name.className = "app-name";
+        name.textContent = app.name;
+        button.append(name);
+        button.addEventListener("click", () => openApp(app.id));
+        return button;
+      }
+      apps.slice(0, 12).forEach((app) => $("#appGrid").append(makeAppButton(app)));
+      apps.slice(12).forEach((app) => $("#secondaryGrid").append(makeAppButton(app)));
+      dockApps.forEach((app) => $("#dock").append(makeAppButton(app)));
+
+      function setHomePage(index) {
+        homePageIndex = Math.max(0, Math.min(1, index));
+        document.querySelectorAll(".home-page").forEach((page, pageIndex) => {
+          page.style.transform = `translateX(${(pageIndex - homePageIndex) * 100}%)`;
+        });
+        document.querySelectorAll(".page-dot").forEach((dot) => {
+          const active = Number(dot.dataset.page) === homePageIndex;
+          dot.classList.toggle("active", active);
+          dot.setAttribute("aria-current", active ? "page" : "false");
+        });
+      }
+
+      function updateTime() {
+        const now = new Date();
+        const time = new Intl.DateTimeFormat("zh-CN", { hour: "2-digit", minute: "2-digit", hour12: false }).format(now);
+        $("#statusTime").textContent = time;
+        $("#lockClock").textContent = time;
+        $("#lockDate").textContent = new Intl.DateTimeFormat("zh-CN", { month: "long", day: "numeric", weekday: "long" }).format(now);
+      }
+      updateTime();
+      window.setInterval(updateTime, 15000);
+
+      function unlock() {
+        unlocked = true;
+        lockScreen.classList.remove("active");
+        homeScreen.classList.add("active");
+      }
+      function goHome() {
+        appView.classList.remove("open");
+        controlCenter.classList.remove("open");
+        $("#island").classList.remove("expanded");
+        if (!unlocked) unlock();
+        else {
+          homeScreen.classList.add("active");
+          lockScreen.classList.remove("active");
+        }
+      }
+      function closeApp() {
+        appView.classList.remove("open");
+        window.setTimeout(() => { appView.innerHTML = ""; }, 420);
+      }
+
+      const heading = {
+        messages: "信息", calendar: "日历", photos: "照片", camera: "相机",
+        maps: "地图", clock: "时钟", weather: "天气", settings: "设置",
+        store: "App Store", notes: "备忘录", health: "健康", wallet: "钱包",
+        phone: "电话", safari: "Safari", music: "音乐", wuliao: "吴聊"
+      };
+
+      function openApp(id) {
+        if (!unlocked) unlock();
+        if (id === "wuliao") {
+          appView.className = "app-view wuliao-app";
+          appView.innerHTML = '<div class="wu-root" id="wuRoot"></div>';
+          renderWuList();
+          requestAnimationFrame(() => appView.classList.add("open"));
+          return;
+        }
+        const title = heading[id] || "应用";
+        appView.className = "app-view" + (id === "camera" ? " camera-app" : "");
+        appView.innerHTML = `<header class="app-header"><h2>${title}</h2><button class="app-close" aria-label="关闭应用">×</button></header><div class="app-body" id="appBody"></div>`;
+        appView.querySelector(".app-close").addEventListener("click", closeApp);
+        const body = $("#appBody");
+        if (id === "messages") renderMessages(body);
+        else if (id === "settings") renderSettings(body);
+        else if (id === "photos") renderPhotos(body);
+        else if (id === "camera") renderCamera(body);
+        else if (id === "safari") renderSafari(body);
+        else if (id === "weather") renderWeather(body);
+        else if (id === "clock") renderClock(body);
+        else if (id === "phone") renderPhone(body);
+        else if (id === "music") renderMusic(body);
+        else if (id === "calendar") renderCalendar(body);
+        else renderSimpleApp(body, id);
+        requestAnimationFrame(() => appView.classList.add("open"));
+      }
+
+      function renderWuList() {
+        if (!wuLoggedIn) {
+          renderWuLogin();
+          return;
+        }
+        $("#wuRoot").innerHTML = `<header class="wu-header"><button class="wu-header-button" id="wuExit" aria-label="关闭吴聊">‹</button><h2>吴聊</h2><button class="wu-header-button" aria-label="新建聊天">＋</button></header><main class="wu-contact-list" id="wuConversationList"></main>`;
+        const list = $("#wuConversationList");
+        wuContacts.forEach((contact) => {
+          const row = document.createElement("button");
+          row.className = "wu-contact";
+          row.type = "button";
+          const avatar = makeWuAvatar(contact.name);
+          const copy = document.createElement("span");
+          copy.className = "wu-contact-copy";
+          const title = document.createElement("span");
+          title.className = "wu-contact-title";
+          const name = document.createElement("span");
+          name.textContent = contact.name;
+          const time = document.createElement("time");
+          time.textContent = contact.name === "crush" ? "昨天 19:00" : contact.name === "小米米" ? "昨天 12:00" : "";
+          title.append(name, time);
+          const preview = document.createElement("span");
+          preview.className = "wu-preview";
+          preview.textContent = contact.name === "crush" ? "就不告诉你！" : contact.name === "小米米" ? "小米不臭" : contact.description;
+          copy.append(title, preview);
+          row.append(avatar, copy);
+          row.addEventListener("click", () => renderWuChat(contact.name));
+          list.append(row);
+        });
+        $("#wuExit").addEventListener("click", closeApp);
+        renderWuTabs("chat");
+      }
+
+      function makeWuAvatar(contactName, extraClass = "") {
+        const contact = wuContacts.find((entry) => entry.name === contactName);
+        const avatar = document.createElement("button");
+        avatar.className = `wu-avatar wu-avatar-photo${extraClass ? ` ${extraClass}` : ""}`;
+        avatar.type = "button";
+        avatar.setAttribute("aria-label", `查看${contactName}的资料`);
+        const image = document.createElement("img");
+        image.src = encodeURI(contact ? contact.avatar : "头像/小谷.png");
+        image.alt = `${contactName}的头像`;
+        avatar.append(image);
+        avatar.addEventListener("click", (event) => {
+          event.stopPropagation();
+          renderWuFriendProfile(contactName);
+        });
+        return avatar;
+      }
+
+      function renderWuTabs(activeTab) {
+        const nav = document.createElement("nav");
+        nav.className = "wu-tabs";
+        nav.innerHTML = `<button class="wu-tab${activeTab === "chat" ? " active" : ""}" data-tab="chat"><span>▣</span>聊天</button><button class="wu-tab${activeTab === "contacts" ? " active" : ""}" data-tab="contacts"><span>♙</span>联系人</button><button class="wu-tab${activeTab === "discover" ? " active" : ""}" data-tab="discover"><span>◉</span>发现</button><button class="wu-tab${activeTab === "me" ? " active" : ""}" data-tab="me"><span>☺</span>我的</button>`;
+        $("#wuRoot").append(nav);
+        nav.querySelectorAll(".wu-tab").forEach((tab) => tab.addEventListener("click", () => {
+          if (tab.dataset.tab === "chat") renderWuList();
+          else if (tab.dataset.tab === "contacts") renderWuContacts();
+          else if (tab.dataset.tab === "discover") renderWuDiscover();
+          else if (tab.dataset.tab === "me") renderWuMe();
+        }));
+      }
+
+      function renderWuContacts() {
+        $("#wuRoot").innerHTML = `<header class="wu-header"><h2>联系人</h2><button class="wu-header-button" aria-label="添加联系人">＋</button></header><main class="wu-contact-list" id="wuContacts"></main>`;
+        const contacts = $("#wuContacts");
+        wuContacts.forEach((contact) => {
+          const row = document.createElement("button");
+          row.className = "wu-contact";
+          row.type = "button";
+          const copy = document.createElement("span");
+          copy.className = "wu-contact-copy";
+          const title = document.createElement("span");
+          title.className = "wu-contact-title";
+          title.textContent = contact.name;
+          const description = document.createElement("span");
+          description.className = "wu-contact-description";
+          description.textContent = contact.description;
+          copy.append(title, description);
+          row.append(makeWuAvatar(contact.name), copy);
+          row.addEventListener("click", () => renderWuFriendProfile(contact.name));
+          contacts.append(row);
+        });
+        renderWuTabs("contacts");
+      }
+
+      function renderWuMe() {
+        $("#wuRoot").innerHTML = `<header class="wu-header"><button class="wu-header-button" id="wuMeBack" aria-label="返回聊天">‹</button><h2>我的</h2><button class="wu-header-button" aria-label="更多设置">···</button></header><main class="wu-profile-page"><section class="wu-profile-banner"><div class="wu-profile-avatar" aria-hidden="true">🙂</div><div class="wu-profile-copy"><strong>一个匿名的人</strong><span>吴聊号：匿名用户　›</span></div><span class="wu-profile-chevron">›</span></section><section class="wu-profile-section"><button class="wu-profile-row" type="button"><span class="wu-profile-row-icon">▧</span><span>朋友圈</span><span class="wu-profile-row-note">分享生活　›</span></button></section><section class="wu-profile-section"><button class="wu-profile-row" type="button" id="wuWalletOpen"><span class="wu-profile-row-icon">¥</span><span>钱包</span><span class="wu-profile-row-note">余额 ¥${wuWalletBalance.toLocaleString("zh-CN")}　›</span></button></section><section class="wu-profile-section"><button class="wu-profile-row" type="button"><span class="wu-profile-row-icon">☆</span><span>收藏</span><span class="wu-profile-row-note">›</span></button><button class="wu-profile-row" type="button"><span class="wu-profile-row-icon">▤</span><span>卡包</span><span class="wu-profile-row-note">›</span></button></section><section class="wu-profile-section"><button class="wu-profile-row" type="button"><span class="wu-profile-row-icon">⚙</span><span>设置</span><span class="wu-profile-row-note">›</span></button></section></main>`;
+        $("#wuMeBack").addEventListener("click", renderWuList);
+        $("#wuWalletOpen").addEventListener("click", renderWuWallet);
+        renderWuTabs("me");
+      }
+
+      function renderWuWallet() {
+        $("#wuRoot").innerHTML = `<header class="wu-header"><button class="wu-header-button" id="wuWalletBack" aria-label="返回我的">‹</button><h2>钱包</h2><button class="wu-header-button" aria-label="更多钱包服务">···</button></header><main class="wu-wallet-page"><section class="wu-wallet-card"><div class="wu-wallet-card-label">零钱余额</div><div class="wu-wallet-card-balance">¥ ${wuWalletBalance.toLocaleString("zh-CN")}.00</div><div class="wu-wallet-card-caption">本地界面演示余额，不代表真实资金</div></section><section class="wu-wallet-actions"><button class="wu-wallet-action" type="button"><span>↗</span>收付款</button><button class="wu-wallet-action" type="button"><span>＋</span>零钱充值</button><button class="wu-wallet-action" type="button"><span>▤</span>账单</button><button class="wu-wallet-action" type="button"><span>▣</span>银行卡</button></section><section class="wu-profile-section"><div class="wu-profile-row"><span class="wu-profile-row-icon">↗</span><span>零钱</span><span class="wu-profile-row-note">¥ ${wuWalletBalance.toLocaleString("zh-CN")}　›</span></div><div class="wu-profile-row"><span class="wu-profile-row-icon">▣</span><span>银行卡</span><span class="wu-profile-row-note">›</span></div></section><p class="wu-wallet-note">吴聊本地演示钱包，不提供真实支付、充值或转账服务。</p></main>`;
+        $("#wuWalletBack").addEventListener("click", renderWuMe);
+      }
+
+      function renderWuLogin() {
+        wuOtp = "";
+        $("#wuRoot").innerHTML = `<main class="wu-login"><section class="wu-login-card"><div class="wu-login-icon" aria-hidden="true">😺</div><h3>登录吴聊</h3><p>使用默认账号通过验证码登录</p><div class="wu-account">账号：<strong>一个匿名的人</strong></div><form id="wuLoginForm"><input class="wu-code-input" id="wuOtpInput" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" aria-label="六位验证码" placeholder="输入验证码"><button class="wu-auth-button" type="submit">验证码登录</button><button class="wu-auth-button secondary" type="button" id="wuRequestOtp">获取验证码</button></form><p class="wu-login-status" id="wuLoginStatus" role="status" aria-live="polite"></p><p class="wu-demo-note">本地演示：验证码仅显示在此页面，不会发送真实短信，也不是安全验证。</p></section></main>`;
+        $("#wuRequestOtp").addEventListener("click", () => {
+          let nextOtp = String(Math.floor(Math.random() * 900000) + 100000);
+          if (nextOtp === previousWuOtp) {
+            const previousNumber = Number(nextOtp);
+            nextOtp = String(previousNumber === 999999 ? 100000 : previousNumber + 1);
+          }
+          previousWuOtp = nextOtp;
+          wuOtp = nextOtp;
+          $("#wuOtpInput").value = "";
+          $("#wuLoginStatus").textContent = "已生成本地演示验证码，请查看弹窗。";
+
+          $("#wuRoot").querySelector(".wu-code-overlay")?.remove();
+          const overlay = document.createElement("div");
+          overlay.className = "wu-code-overlay";
+          overlay.setAttribute("role", "dialog");
+          overlay.setAttribute("aria-modal", "true");
+          overlay.setAttribute("aria-label", "演示验证码");
+          overlay.innerHTML = `<section class="wu-code-dialog"><h4>吴聊验证码</h4><p>您的本地演示验证码是</p><div class="wu-code-value"></div><button class="wu-copy-code" type="button">复制验证码</button><p class="wu-code-countdown" role="status" aria-live="polite">复制后弹窗会保留，请复制并输入验证码。</p><button class="wu-close-code" type="button">关闭弹窗，继续输入</button></section>`;
+          overlay.querySelector(".wu-code-value").textContent = wuOtp;
+          $("#wuRoot").append(overlay);
+          overlay.querySelector(".wu-close-code").addEventListener("click", () => overlay.remove());
+          overlay.querySelector(".wu-copy-code").addEventListener("click", async () => {
+            const copyStatus = overlay.querySelector(".wu-code-countdown");
+            try {
+              if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(wuOtp);
+              } else {
+                const temporaryInput = document.createElement("textarea");
+                temporaryInput.value = wuOtp;
+                temporaryInput.setAttribute("readonly", "");
+                temporaryInput.style.position = "fixed";
+                temporaryInput.style.opacity = "0";
+                document.body.append(temporaryInput);
+                temporaryInput.select();
+                const copied = document.execCommand("copy");
+                temporaryInput.remove();
+                if (!copied) throw new Error("浏览器未允许复制");
+              }
+              copyStatus.textContent = "已复制。弹窗会保持打开；关闭后输入验证码即可登录。";
+            } catch (error) {
+              copyStatus.textContent = "复制失败，请手动输入弹窗中的验证码。";
+            }
+          });
+        });
+        $("#wuLoginForm").addEventListener("submit", (event) => {
+          event.preventDefault();
+          const enteredOtp = $("#wuOtpInput").value.trim();
+          const status = $("#wuLoginStatus");
+          if (!wuOtp) {
+            status.textContent = "请先获取验证码。";
+            return;
+          }
+          if (enteredOtp !== wuOtp) {
+            status.textContent = "验证码不正确，请检查后重试。";
+            return;
+          }
+          wuLoggedIn = true;
+          wuOtp = "";
+          renderWuList();
+        });
+      }
+
+      function renderWuDiscover() {
+        $("#wuRoot").innerHTML = `<header class="wu-header"><button class="wu-header-button" id="wuDiscoverBack" aria-label="返回聊天">‹</button><h2>发现</h2><button class="wu-header-button" aria-label="更多发现">···</button></header><main class="wu-discover"><button class="wu-moments-link" id="wuMomentsLink"><span class="wu-moments-link-copy"><b>朋友圈</b><span>看看朋友们的可爱日常　›</span></span><span class="wu-profile-chevron">›</span></button><div class="wu-moments-blank">点开联系人头像，看看他们的朋友圈。</div></main>`;
+        $("#wuDiscoverBack").addEventListener("click", renderWuList);
+        $("#wuMomentsLink").addEventListener("click", () => renderWuFriendProfile("crush"));
+        renderWuTabs("discover");
+      }
+
+      function getWuMomentPosts(contactName) {
+        if (contactName === "小米米") return xiaomiMomentPosts;
+        if (contactName === "crush") return momentPosts;
+        return [];
+      }
+
+      function renderWuMoments(contactName = "crush", scrollToIndex = -1) {
+        const contact = wuContacts.find((entry) => entry.name === contactName);
+        const posts = getWuMomentPosts(contactName);
+        const hasPosts = Boolean(contact && posts.length);
+        $("#wuRoot").innerHTML = `<header class="wu-header"><button class="wu-header-button" id="wuMomentsBack" aria-label="返回${contactName}资料">‹</button><h2>${contactName}的朋友圈</h2><button class="wu-header-button" aria-label="朋友圈选项">···</button></header><main class="wu-moments-feed" id="wuMomentsFeed"><div class="wu-cover"><div class="wu-cover-profile" id="wuMomentsProfile"></div></div><div id="wuPostList"></div></main>`;
+        $("#wuMomentsBack").addEventListener("click", () => renderWuFriendProfile(contactName));
+        const profile = $("#wuMomentsProfile");
+        profile.append(makeWuAvatar(contactName), document.createTextNode(contactName));
+        const postList = $("#wuPostList");
+        if (hasPosts) {
+          posts.forEach((post, index) => appendWuPost(postList, post, index, contactName));
+        } else {
+          const blank = document.createElement("div");
+          blank.className = "wu-moments-blank";
+          blank.textContent = `${contactName}还没有发布朋友圈。`;
+          postList.append(blank);
+        }
+        if (scrollToIndex >= 0) {
+          requestAnimationFrame(() => $("#wuMomentsFeed").querySelector(`[data-post-index="${scrollToIndex}"]`)?.scrollIntoView({ block: "start" }));
+        }
+      }
+
+      function renderWuFriendProfile(contactName) {
+        const contact = wuContacts.find((entry) => entry.name === contactName) || wuContacts[0];
+        const posts = getWuMomentPosts(contact.name);
+        const postCount = posts.length;
+        $("#wuRoot").innerHTML = `<header class="wu-header"><button class="wu-header-button" id="wuFriendBack" aria-label="返回联系人">‹</button><h2>朋友资料</h2><button class="wu-header-button" aria-label="更多资料选项">···</button></header><main class="wu-friend-profile" id="wuFriendProfile"><section class="wu-friend-hero" id="wuFriendHero"><div class="wu-friend-name"></div></section><div class="wu-friend-facts">昵称：${contact.name}<br>个性签名：${contact.description}</div><section class="wu-friend-section"><button class="wu-profile-row" type="button" id="wuFriendMoments"><span>朋友圈</span><span class="wu-profile-row-note">${postCount ? `${postCount} 条动态` : "暂时还没有动态"}　›</span></button><div class="wu-friend-moment-previews" id="wuFriendMomentPreviews"></div></section></main><div class="wu-friend-actions"><button class="wu-friend-action" type="button" id="wuFriendInfo">朋友资料</button><button class="wu-friend-action" type="button" id="wuFriendMomentsAction">朋友圈</button><button class="wu-friend-action primary" type="button" id="wuFriendMessage">发消息</button><button class="wu-friend-action" type="button" id="wuFriendCall">音视频通话</button></div>`;
+        $("#wuFriendBack").addEventListener("click", renderWuContacts);
+        const hero = $("#wuFriendHero");
+        hero.insertBefore(makeWuAvatar(contact.name), hero.firstChild);
+        hero.querySelector(".wu-friend-name").textContent = contact.name;
+        $("#wuFriendMoments").addEventListener("click", () => renderWuMoments(contact.name));
+        const previews = $("#wuFriendMomentPreviews");
+        if (postCount) {
+          posts.filter((post) => post.photo).slice(0, 4).forEach((post) => {
+            const preview = document.createElement("button");
+            preview.className = "wu-friend-moment-preview";
+            preview.type = "button";
+            preview.setAttribute("aria-label", `查看${contact.name}的朋友圈：${post.text}`);
+            const image = document.createElement("img");
+            image.src = encodeURI(`${post.photoFolder || "小清纯照片"}/${post.photo}.png`);
+            image.alt = "";
+            image.loading = "lazy";
+            preview.append(image);
+            preview.addEventListener("click", () => renderWuMoments(contact.name, posts.indexOf(post)));
+            previews.append(preview);
+          });
+        } else {
+          const empty = document.createElement("div");
+          empty.className = "wu-friend-empty";
+          empty.textContent = "朋友圈暂时空空的，等小主人来分享新日常。";
+          previews.append(empty);
+        }
+        $("#wuFriendMessage").addEventListener("click", () => renderWuChat(contact.name));
+        $("#wuFriendMomentsAction").addEventListener("click", () => renderWuMoments(contact.name));
+        $("#wuFriendInfo").addEventListener("click", () => $("#wuFriendProfile").scrollTo({ top: 0, behavior: "smooth" }));
+        $("#wuFriendCall").addEventListener("click", () => {
+          const notice = document.createElement("div");
+          notice.className = "wu-notice";
+          notice.textContent = "音视频通话功能尚未连接";
+          $("#wuRoot").append(notice);
+          window.setTimeout(() => notice.remove(), 2200);
+        });
+      }
+
+      function pickRandom(items, count) {
+        const shuffled = [...items];
+        for (let index = shuffled.length - 1; index > 0; index--) {
+          const swapIndex = Math.floor(Math.random() * (index + 1));
+          [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+        }
+        return shuffled.slice(0, count);
+      }
+
+      function appendWuPost(container, post, index, contactName) {
+        const article = document.createElement("article");
+        article.className = "wu-post";
+        article.dataset.postIndex = String(index);
+        const top = document.createElement("div");
+        top.className = "wu-post-top";
+        const avatar = makeWuAvatar(contactName);
+        const author = document.createElement("div");
+        const authorName = document.createElement("div");
+        authorName.className = "wu-post-author";
+        authorName.textContent = contactName;
+        const postTime = document.createElement("div");
+        postTime.className = "wu-post-time";
+        postTime.textContent = ["刚刚", "1小时前", "昨天 23:18", "昨天 19:42", "周一", "周日", "上周"][index % 7];
+        author.append(authorName, postTime);
+        top.append(avatar, author);
+        article.append(top);
+
+        const copy = document.createElement("p");
+        copy.className = "wu-post-copy";
+        copy.textContent = post.text;
+        article.append(copy);
+        const image = document.createElement("img");
+        image.className = "wu-post-photo-single";
+        image.src = encodeURI(`${post.photoFolder || "小清纯照片"}/${post.photo}.png`);
+        image.alt = `${contactName}的朋友圈照片`;
+        image.loading = "lazy";
+        if (post.photo) article.append(image);
+
+        const names = pickRandom(momentNames, 5 + Math.floor(Math.random() * 6));
+        const social = document.createElement("div");
+        social.className = "wu-social";
+        const likers = document.createElement("div");
+        likers.className = "wu-likers";
+        likers.dataset.names = names.join("、");
+        likers.textContent = `♥ ${names.join("、")}`;
+        social.append(likers);
+        const comments = pickRandom(post.comments, 2 + Math.floor(Math.random() * 2));
+        const commenters = pickRandom(momentNames.filter((name) => !names.includes(name)), comments.length);
+        comments.forEach((text, commentIndex) => {
+          const comment = document.createElement("div");
+          comment.className = "wu-comment";
+          const person = document.createElement("b");
+          person.textContent = `${commenters[commentIndex]}：`;
+          comment.append(person, document.createTextNode(text));
+          social.append(comment);
+        });
+        article.append(social);
+        const actions = document.createElement("div");
+        actions.className = "wu-post-actions";
+        const likeButton = document.createElement("button");
+        likeButton.className = "wu-like-button";
+        likeButton.type = "button";
+        likeButton.textContent = "♡";
+        likeButton.setAttribute("aria-label", "赞");
+        likeButton.addEventListener("click", () => {
+          const liked = likeButton.classList.toggle("liked");
+          likeButton.textContent = liked ? "♥ 已赞" : "♡";
+        });
+        actions.append(likeButton);
+        article.append(actions);
+        container.append(article);
+      }
+
+      function renderWuChat(contactName = "crush") {
+        const messages = contactName === "crush" ? wuMessages : (wuContactMessages.get(contactName) || []);
+        $("#wuRoot").innerHTML = `<header class="wu-header"><button class="wu-header-button" id="wuBack" aria-label="返回聊天列表">‹</button><h2>${contactName}</h2><button class="wu-header-button" id="wuChatMoments" aria-label="查看${contactName}的朋友圈">···</button></header><main class="wu-thread" id="wuThread"><div class="wu-time">你和${contactName}的聊天</div><div id="wuMessageList"></div></main><form class="wu-composer" id="wuComposer"><button class="wu-tool" type="button" id="wuVoice" aria-label="语音输入">◖</button><input class="wu-input" id="wuInput" aria-label="发送给${contactName}" autocomplete="off"><button class="wu-tool" type="button" id="wuEmoji" aria-label="添加表情">☺</button><button class="wu-tool" type="button" id="wuMore" aria-label="更多功能">＋</button><button class="wu-send" id="wuSend" disabled>发送</button></form>`;
+        $("#wuBack").addEventListener("click", renderWuList);
+        $("#wuChatMoments").addEventListener("click", () => renderWuFriendProfile(contactName));
+        const messageList = $("#wuMessageList");
+        if (!messages.length) {
+          const blank = document.createElement("div");
+          blank.className = "wu-time";
+          blank.textContent = "你们已经是好友啦，发消息打个招呼吧。";
+          messageList.append(blank);
+        }
+        messages.forEach((message) => appendWuMessage(messageList, message, contactName));
+        const thread = $("#wuThread");
+        thread.scrollTop = thread.scrollHeight;
+        const input = $("#wuInput");
+        const send = $("#wuSend");
+        if (contactName === "crush" && wuCrushStoryPhase !== "done") {
+          input.readOnly = true;
+          input.placeholder = wuCrushStoryPhase === "idle" ? "点这里开始互动对话" : "互动对话进行中…";
+        } else if (contactName === "crush" && wuCrushStoryPhase === "done") {
+          input.readOnly = true;
+          input.placeholder = "对方已把你删除";
+          send.disabled = true;
+        }
+        if (contactName === "crush" && wuCrushStoryPhase === "choice") {
+          renderWuStoryChoices(messageList, thread, input);
+        }
+        if (contactName === "小米米" && wuXiaomiStoryPhase !== "done") {
+          input.readOnly = true;
+          input.placeholder = wuXiaomiStoryPhase === "idle" ? "点这里开始互动对话" : "互动对话进行中…";
+        } else if (contactName === "小米米" && wuXiaomiStoryPhase === "done") {
+          input.readOnly = true;
+          input.placeholder = "剧情结束";
+          send.disabled = true;
+        }
+        if (contactName === "小米米" && wuXiaomiStoryPhase === "choice") {
+          renderWuXiaomiChoices(messageList, thread, input);
+        }
+        input.addEventListener("click", () => {
+          if (contactName === "crush" && wuCrushStoryPhase === "idle") {
+            startWuCrushStory(messageList, thread, input);
+          }
+          if (contactName === "小米米" && wuXiaomiStoryPhase === "idle") {
+            startWuXiaomiStory(messageList, thread, input);
+          }
+        });
+        input.addEventListener("input", () => { send.disabled = !input.value.trim(); });
+        $("#wuComposer").addEventListener("submit", (event) => {
+          event.preventDefault();
+          const text = input.value.trim();
+          if (!text) return;
+          const message = { text, outgoing: true };
+          if (contactName === "crush") wuMessages.push(message);
+          else {
+            messages.push(message);
+            wuContactMessages.set(contactName, messages);
+          }
+          appendWuMessage(messageList, message, contactName);
+          input.value = "";
+          send.disabled = true;
+          thread.scrollTop = thread.scrollHeight;
+        });
+        $("#wuEmoji").addEventListener("click", () => {
+          input.value += "😺";
+          input.dispatchEvent(new Event("input"));
+          input.focus();
+        });
+        $("#wuVoice").addEventListener("click", () => {
+          $("#wuNotice")?.remove();
+          const notice = document.createElement("div");
+          notice.className = "wu-notice";
+          notice.id = "wuNotice";
+          notice.textContent = "语音输入功能尚未连接到麦克风";
+          thread.append(notice);
+          thread.scrollTop = thread.scrollHeight;
+        });
+        $("#wuMore").addEventListener("click", () => {
+          input.value += "📷";
+          input.dispatchEvent(new Event("input"));
+          input.focus();
+        });
+      }
+
+      function appendWuMessage(container, message, contactName = "crush") {
+        if (message.storyEnding) {
+          const ending = document.createElement("div");
+          ending.className = "wu-deleted-ending";
+          ending.setAttribute("role", "status");
+          const icon = document.createElement("span");
+          icon.className = "wu-deleted-icon";
+          icon.setAttribute("aria-hidden", "true");
+          icon.textContent = "!";
+          const copy = document.createElement("span");
+          const title = document.createElement("strong");
+          title.textContent = `结局${message.endingNumber}`;
+          const description = document.createElement("span");
+          description.textContent = message.text;
+          copy.append(title, document.createElement("br"), description);
+          ending.append(icon, copy);
+          container.append(ending);
+          return;
+        }
+        if (message.time) {
+          const time = document.createElement("div");
+          time.className = "wu-message-time";
+          time.textContent = message.time;
+          container.append(time);
+          return;
+        }
+        const row = document.createElement("div");
+        row.className = `wu-message${message.outgoing ? " outgoing" : ""}`;
+        const avatar = message.outgoing ? document.createElement("span") : makeWuAvatar(contactName);
+        if (message.outgoing) {
+          avatar.className = "wu-avatar";
+          avatar.setAttribute("role", "img");
+          avatar.setAttribute("aria-label", "我的头像");
+          avatar.textContent = "🙂";
+        }
+        const bubble = document.createElement("div");
+        bubble.className = "wu-bubble";
+        if (message.transfer) {
+          bubble.className = "wu-transfer";
+          const main = document.createElement("div");
+          main.className = "wu-transfer-main";
+          const icon = document.createElement("span");
+          icon.className = "wu-transfer-icon";
+          icon.textContent = "¥";
+          const details = document.createElement("div");
+          const amount = document.createElement("div");
+          amount.className = "wu-transfer-amount";
+          amount.textContent = `¥${message.transfer.amount.toFixed(2)}`;
+          const note = document.createElement("div");
+          note.className = "wu-transfer-note";
+          note.textContent = message.transfer.note;
+          details.append(amount, note);
+          main.append(icon, details);
+          const footer = document.createElement("div");
+          footer.className = "wu-transfer-footer";
+          footer.textContent = message.transfer.status
+            ? `吴聊转账 · ${message.transfer.status} · 本地演示`
+            : "吴聊转账 · 本地演示";
+          bubble.append(main, footer);
+        } else if (message.audioPath) {
+          bubble.className = "wu-bubble wu-audio-bubble";
+          const playButton = document.createElement("button");
+          playButton.className = "wu-audio-button";
+          playButton.type = "button";
+          playButton.setAttribute("aria-label", "播放语音消息");
+          const icon = document.createElement("span");
+          icon.className = "wu-audio-icon";
+          icon.textContent = "◖";
+          const duration = document.createElement("span");
+          duration.className = "wu-audio-duration";
+          duration.textContent = "…″";
+          const audio = document.createElement("audio");
+          audio.preload = "metadata";
+          audio.src = new URL(message.audioPath.split("/").map(encodeURIComponent).join("/"), document.baseURI).href;
+          audio.addEventListener("error", () => {
+            icon.textContent = "!";
+            playButton.setAttribute("aria-label", `语音文件无法读取：${audio.error?.message || "请检查音频文件路径"}`);
+          });
+          audio.addEventListener("loadedmetadata", () => {
+            if (Number.isFinite(audio.duration)) {
+              const seconds = Math.max(1, Math.ceil(audio.duration));
+              duration.textContent = `${seconds}″`;
+              bubble.style.setProperty("--wu-audio-width", `${Math.min(190, 72 + seconds * 7)}px`);
+              playButton.setAttribute("aria-label", `播放 ${seconds} 秒语音消息`);
+            }
+          });
+          const resetPlayback = () => { icon.textContent = "◖"; };
+          audio.addEventListener("ended", resetPlayback);
+          audio.addEventListener("pause", resetPlayback);
+          playButton.addEventListener("click", () => {
+            if (audio.paused) {
+              const playback = audio.play();
+              if (!playback) {
+                icon.textContent = "♫";
+                return;
+              }
+              playback.then(() => {
+                icon.textContent = "♫";
+                playButton.setAttribute("aria-label", "暂停语音消息");
+              }).catch((error) => {
+                icon.textContent = "!";
+                playButton.setAttribute("aria-label", `语音播放失败：${error.message}`);
+              });
+            } else {
+              audio.pause();
+            }
+          });
+          playButton.append(icon, duration);
+          bubble.append(playButton, audio);
+        } else if (message.image || message.imagePath) {
+          const image = document.createElement("img");
+          image.className = "wu-chat-photo";
+          image.src = encodeURI(message.imagePath || `小清纯照片/${message.image}.png`);
+          image.alt = message.imageAlt || (message.imagePath ? `${contactName}分享的照片` : `${contactName}分享的照片 ${message.image}`);
+          image.loading = "lazy";
+          bubble.append(image);
+        } else {
+          bubble.textContent = message.text;
+        }
+        row.append(avatar, bubble);
+        container.append(row);
+      }
+
+      function appendWuStoryMessage(messageList, thread, message, contactName = "crush") {
+        if (contactName === "crush") wuMessages.push(message);
+        else wuContactMessages.get(contactName).push(message);
+        if (messageList.isConnected) appendWuMessage(messageList, message, contactName);
+        thread.scrollTop = thread.scrollHeight;
+      }
+
+      function waitForWuStoryMessage() {
+        return new Promise((resolve) => window.setTimeout(resolve, 2000));
+      }
+
+      function pickWuAudioPath() {
+        const audioFile = wuAudioFiles[Math.floor(Math.random() * wuAudioFiles.length)];
+        return `老吴音频/${audioFile}`;
+      }
+
+      function renderWuStoryChoices(messageList, thread, input, options = [
+        { label: "老吴", action: "voice" },
+        { label: "你咋这么萌呀", action: "photo" }
+      ], onChoose = chooseWuCrushStory) {
+        messageList.querySelector(".wu-story-choices")?.remove();
+        const choices = document.createElement("div");
+        choices.className = "wu-story-choices";
+        options.forEach(({ label, action }) => {
+          const button = document.createElement("button");
+          button.className = "wu-story-choice";
+          button.type = "button";
+          button.textContent = label;
+          button.addEventListener("click", () => onChoose(action, choices, messageList, thread, input));
+          choices.append(button);
+        });
+        messageList.append(choices);
+        thread.scrollTop = thread.scrollHeight;
+      }
+
+      function renderWuXiaomiChoices(messageList, thread, input) {
+        const options = wuXiaomiChoiceSet === "initial"
+          ? [
+            { label: "不信", action: "distrust" },
+            { label: "我都听到你走路啪嗒啪嗒的声音了！", action: "accuse" },
+            { label: "小米你现在在哪里", action: "findXiaomi" },
+            { label: "老吴", action: "voice" }
+          ]
+          : wuXiaomiChoiceSet === "foot"
+            ? [
+              { label: "诶呀这个……\n小米脚比我小呀，以后走路轻点不要被人发现了。", action: "silentSlippers" },
+              { label: "老吴", action: "voice" }
+            ]
+            : [{ label: "老吴", action: "voice" }];
+        renderWuStoryChoices(messageList, thread, input, options, chooseWuXiaomiStory);
+      }
+
+      async function startWuXiaomiStory(messageList, thread, input) {
+        if (wuXiaomiStoryPhase !== "idle") return;
+        wuXiaomiStoryPhase = "playing";
+        input.placeholder = "互动对话进行中…";
+        appendWuStoryMessage(messageList, thread, {
+          text: "小米你是不是拿别人家绳子了",
+          outgoing: true
+        }, "小米米");
+        await waitForWuStoryMessage();
+        appendWuStoryMessage(messageList, thread, {
+          text: "没有呀我一直在睡觉",
+          outgoing: false
+        }, "小米米");
+        wuXiaomiStoryPhase = "choice";
+        wuXiaomiChoiceSet = "initial";
+        input.placeholder = "选择上方的回复继续对话";
+        renderWuXiaomiChoices(messageList, thread, input);
+      }
+
+      async function exchangeWuXiaomiVoices(messageList, thread) {
+        appendWuStoryMessage(messageList, thread, { audioPath: pickWuAudioPath(), outgoing: true }, "小米米");
+        wuXiaomiUserVoiceCount += 1;
+        await waitForWuStoryMessage();
+        appendWuStoryMessage(messageList, thread, { audioPath: pickWuAudioPath(), outgoing: false }, "小米米");
+        wuXiaomiReplyVoiceCount += 1;
+      }
+
+      function endWuXiaomiStory(messageList, thread, input, endingNumber, text) {
+        wuXiaomiStoryPhase = "done";
+        const ending = { storyEnding: true, endingNumber, text };
+        const messages = wuContactMessages.get("小米米");
+        messages.push(ending);
+        appendWuMessage(messageList, ending, "小米米");
+        input.readOnly = true;
+        input.placeholder = `结局${endingNumber}`;
+        $("#wuSend").disabled = true;
+        thread.scrollTop = thread.scrollHeight;
+        if (endingNumber === 1) showWuXiaomiMomentNotice();
+        if (endingNumber !== 1) {
+          window.setTimeout(() => {
+            if (messageList.isConnected) showWuStoryReturnPrompt(messageList, () => resetWuXiaomiStory(messageList));
+          }, 3000);
+        }
+      }
+
+      function resetWuXiaomiStory(messageList) {
+        wuContactMessages.get("小米米").splice(wuXiaomiStoryResetLength);
+        wuXiaomiStoryPhase = "idle";
+        wuXiaomiUserVoiceCount = 0;
+        wuXiaomiReplyVoiceCount = 0;
+        wuXiaomiChoiceSet = "initial";
+        if (messageList.isConnected) renderWuChat("小米米");
+      }
+
+      function showWuXiaomiMomentNotice() {
+        const moment = {
+          text: "竟敢冤枉本宝宝",
+          photo: "摸头",
+          photoFolder: "小米米聊天",
+          comments: ["小米米最无辜啦", "快给本宝宝道歉"]
+        };
+        if (!xiaomiMomentPosts.some((post) => post.text === moment.text)) {
+          xiaomiMomentPosts.unshift(moment);
+        }
+        const overlay = document.createElement("div");
+        overlay.className = "wu-code-overlay";
+        overlay.setAttribute("role", "dialog");
+        overlay.setAttribute("aria-modal", "true");
+        overlay.setAttribute("aria-label", "小米米的新朋友圈");
+        overlay.innerHTML = `<section class="wu-code-dialog"><h4>小米米发了新的朋友圈</h4><p>竟敢冤枉本宝宝</p><button class="wu-auth-button" type="button">去看看</button></section>`;
+        $("#wuRoot").append(overlay);
+        overlay.querySelector("button").addEventListener("click", () => {
+          renderWuMoments("小米米", 0);
+        });
+      }
+
+      async function chooseWuXiaomiStory(action, choices, messageList, thread, input) {
+        if (wuXiaomiStoryPhase !== "choice") return;
+        wuXiaomiStoryPhase = "playing";
+        choices.querySelectorAll("button").forEach((button) => { button.disabled = true; });
+        choices.remove();
+        input.placeholder = "互动对话进行中…";
+        if (action === "voice") {
+          await exchangeWuXiaomiVoices(messageList, thread);
+          if (wuXiaomiUserVoiceCount >= 5 && wuXiaomiReplyVoiceCount >= 5) {
+            endWuXiaomiStory(messageList, thread, input, 3, "对方已把你删除");
+            return;
+          }
+          wuXiaomiChoiceSet = "voice";
+          wuXiaomiStoryPhase = "choice";
+          input.placeholder = `选择“老吴”继续语音聊天（${wuXiaomiUserVoiceCount}/5）`;
+          renderWuXiaomiChoices(messageList, thread, input);
+          return;
+        }
+        if (action === "distrust") {
+          appendWuStoryMessage(messageList, thread, { text: "不信", outgoing: true }, "小米米");
+          await waitForWuStoryMessage();
+          appendWuStoryMessage(messageList, thread, { text: "不和姐姐好了", outgoing: false }, "小米米");
+          await waitForWuStoryMessage();
+          appendWuStoryMessage(messageList, thread, {
+            text: "好吧不气不气，给你吃条条",
+            outgoing: true
+          }, "小米米");
+          await waitForWuStoryMessage();
+          appendWuStoryMessage(messageList, thread, {
+            imagePath: "小米米聊天/摸头.png",
+            imageAlt: "我摸摸小米米的头",
+            outgoing: true
+          }, "小米米");
+          await waitForWuStoryMessage();
+          appendWuStoryMessage(messageList, thread, { text: "这还差不多", outgoing: false }, "小米米");
+          endWuXiaomiStory(messageList, thread, input, 1, "被小米控制的人+1");
+          return;
+        }
+        if (action === "accuse") {
+          appendWuStoryMessage(messageList, thread, {
+            text: "我都听到你走路啪嗒啪嗒的声音了！",
+            outgoing: true
+          }, "小米米");
+          await waitForWuStoryMessage();
+          appendWuStoryMessage(messageList, thread, { text: "你走路这么大声", outgoing: true }, "小米米");
+          await waitForWuStoryMessage();
+          appendWuStoryMessage(messageList, thread, {
+            imagePath: "小米米聊天/摸脚.png",
+            imageAlt: "小米米的脚",
+            outgoing: false
+          }, "小米米");
+          await waitForWuStoryMessage();
+          appendWuStoryMessage(messageList, thread, { text: "你看我脚了？！", outgoing: false }, "小米米");
+          wuXiaomiChoiceSet = "foot";
+          wuXiaomiStoryPhase = "choice";
+          input.placeholder = "选择上方的回复继续对话";
+          renderWuXiaomiChoices(messageList, thread, input);
+          return;
+        }
+        if (action === "findXiaomi") {
+          appendWuStoryMessage(messageList, thread, {
+            text: "小米你现在在哪里",
+            outgoing: true
+          }, "小米米");
+          await waitForWuStoryMessage();
+          appendWuStoryMessage(messageList, thread, {
+            text: "我咋找不到你",
+            outgoing: true
+          }, "小米米");
+          await waitForWuStoryMessage();
+          appendWuStoryMessage(messageList, thread, {
+            text: "你找我干嘛",
+            outgoing: false
+          }, "小米米");
+          await waitForWuStoryMessage();
+          appendWuStoryMessage(messageList, thread, {
+            text: "明天要上小学了啊！",
+            outgoing: true
+          }, "小米米");
+          await waitForWuStoryMessage();
+          appendWuStoryMessage(messageList, thread, {
+            audioPath: pickWuAudioPath(),
+            outgoing: false
+          }, "小米米");
+          await waitForWuStoryMessage();
+          appendWuStoryMessage(messageList, thread, {
+            imagePath: "小米米聊天/躲塑料袋.png",
+            imageAlt: "小米米躲在塑料袋里",
+            outgoing: true
+          }, "小米米");
+          await waitForWuStoryMessage();
+          appendWuStoryMessage(messageList, thread, {
+            text: "你躲这里也没有用呀，这个是你明天上学的书包！",
+            outgoing: true
+          }, "小米米");
+          endWuXiaomiStory(messageList, thread, input, 3, "猫猫也要上学吗！老吴");
+          return;
+        }
+        if (action === "silentSlippers") {
+          appendWuStoryMessage(messageList, thread, {
+            text: "诶呀这个……\n小米脚比我小呀，以后走路轻点不要被人发现了。",
+            outgoing: true
+          }, "小米米");
+          await waitForWuStoryMessage();
+          appendWuStoryMessage(messageList, thread, {
+            text: "你给我买静音拖鞋",
+            outgoing: false
+          }, "小米米");
+          endWuXiaomiStory(messageList, thread, input, 2, "大脚猫的烦恼");
+        }
+      }
+
+      function resetWuCrushStory(messageList) {
+        wuMessages.splice(wuStoryResetLength);
+        wuCrushStoryPhase = "idle";
+        wuCrushUserVoiceCount = 0;
+        wuCrushReplyVoiceCount = 0;
+        wuWalletBalance = 912678;
+        if (messageList.isConnected) renderWuChat("crush");
+      }
+
+      function showWuStoryReturnPrompt(messageList, resetStory = () => resetWuCrushStory(messageList)) {
+        const overlay = document.createElement("div");
+        overlay.className = "wu-code-overlay";
+        overlay.setAttribute("role", "dialog");
+        overlay.setAttribute("aria-modal", "true");
+        overlay.setAttribute("aria-label", "返回聊天剧情");
+        overlay.innerHTML = `<section class="wu-code-dialog"><p>听一遍反方向的钟回到过去</p></section>`;
+        $("#wuRoot").append(overlay);
+        window.setTimeout(() => {
+          overlay.remove();
+          resetStory();
+        }, 2000);
+      }
+
+      function endWuCrushStory(messageList, thread, input, endingNumber, text) {
+        wuCrushStoryPhase = "done";
+        const ending = { storyEnding: true, endingNumber, text };
+        wuMessages.push(ending);
+        appendWuMessage(messageList, ending, "crush");
+        input.readOnly = true;
+        input.placeholder = `结局${endingNumber}`;
+        $("#wuSend").disabled = true;
+        thread.scrollTop = thread.scrollHeight;
+        window.setTimeout(() => {
+          if (messageList.isConnected) showWuStoryReturnPrompt(messageList);
+        }, 3000);
+      }
+
+      function showWuCrushVoiceChoices(messageList, thread, input) {
+        if (wuCrushUserVoiceCount >= 5 && wuCrushReplyVoiceCount >= 5) {
+          endWuCrushStory(messageList, thread, input, 1, "对方已把你删除");
+          return;
+        }
+        wuCrushStoryPhase = "choice";
+        input.placeholder = `选择“老吴”继续语音聊天（${wuCrushUserVoiceCount}/5）`;
+        renderWuStoryChoices(messageList, thread, input, [{ label: "老吴", action: "voice" }]);
+      }
+
+      async function exchangeWuCrushVoices(messageList, thread) {
+        appendWuStoryMessage(messageList, thread, { audioPath: pickWuAudioPath(), outgoing: true });
+        wuCrushUserVoiceCount += 1;
+        await waitForWuStoryMessage();
+        appendWuStoryMessage(messageList, thread, { audioPath: pickWuAudioPath(), outgoing: false });
+        wuCrushReplyVoiceCount += 1;
+      }
+
+      function openWuCrushTransfer(messageList, thread, input) {
+        const overlay = document.createElement("section");
+        overlay.className = "wu-transfer-overlay";
+        overlay.setAttribute("role", "dialog");
+        overlay.setAttribute("aria-modal", "true");
+        overlay.setAttribute("aria-label", "转账给crush");
+        overlay.innerHTML = `<header class="wu-transfer-page-header"><button class="wu-transfer-page-back" type="button" aria-label="返回聊天">‹</button><strong>转账</strong><span style="width:34px"></span></header><main class="wu-transfer-page-body"><p class="wu-transfer-demo-note">本地演示转账，不会扣除真实资金或执行真实支付。</p><div class="wu-transfer-recipient">转账给 <strong>crush</strong><small>仅用于本地聊天剧情</small></div><section class="wu-transfer-entry"><label for="wuTransferAmount">转账金额</label><input class="wu-transfer-amount-input" id="wuTransferAmount" type="number" inputmode="decimal" min="0.01" max="${wuWalletBalance}" step="0.01" placeholder="0.00"><div class="wu-transfer-balance">零钱余额：¥${wuWalletBalance.toLocaleString("zh-CN")}</div><p class="wu-transfer-error" id="wuTransferError" role="status" aria-live="polite"></p><button class="wu-transfer-pay" id="wuTransferPay" type="button" disabled>扫脸免密支付（演示）</button></section><p class="wu-transfer-available">演示余额 ¥912,678.00　·　单笔上限 ¥912,678.00<br>免密确认仅为剧情模拟，不会调用摄像头或生物识别。</p><p class="wu-transfer-special-note">试试特殊数字520/1314.</p></main>`;
+        $("#wuRoot").append(overlay);
+        const amountInput = overlay.querySelector("#wuTransferAmount");
+        const error = overlay.querySelector("#wuTransferError");
+        const payButton = overlay.querySelector("#wuTransferPay");
+        const validateAmount = () => {
+          const value = amountInput.value.trim();
+          const amount = Number(value);
+          const validFormat = /^\d{1,6}(?:\.\d{1,2})?$/.test(value);
+          if (!value) {
+            error.textContent = "";
+            payButton.disabled = true;
+            return null;
+          }
+          if (!validFormat || !Number.isFinite(amount) || amount <= 0) {
+            error.textContent = "请输入大于 0 且最多两位小数的金额。";
+            payButton.disabled = true;
+            return null;
+          }
+          if (amount > 912678 || amount > wuWalletBalance) {
+            error.textContent = `金额不能超过可用余额 ¥${wuWalletBalance.toLocaleString("zh-CN")}。`;
+            payButton.disabled = true;
+            return null;
+          }
+          error.textContent = "";
+          payButton.disabled = false;
+          return amount;
+        };
+        amountInput.addEventListener("input", validateAmount);
+        overlay.querySelector(".wu-transfer-page-back").addEventListener("click", () => {
+          overlay.remove();
+          wuCrushStoryPhase = "choice";
+          input.placeholder = "选择上方的回复继续对话";
+          renderWuStoryChoices(messageList, thread, input, [
+            { label: "老吴", action: "voice" },
+            { label: "把钱都给crush", action: "transfer" }
+          ]);
+        });
+        payButton.addEventListener("click", async () => {
+          const amount = validateAmount();
+          if (amount === null) return;
+          payButton.disabled = true;
+          payButton.textContent = "扫脸确认中…";
+          await new Promise((resolve) => window.setTimeout(resolve, 600));
+          wuWalletBalance = Math.round((wuWalletBalance - amount) * 100) / 100;
+          overlay.remove();
+          appendWuStoryMessage(messageList, thread, {
+            transfer: { amount, note: "转账给 crush", status: "支付成功" },
+            outgoing: true
+          });
+          await handleWuCrushTransferReply(amount, messageList, thread, input);
+        });
+        amountInput.focus();
+      }
+
+      async function handleWuCrushTransferReply(amount, messageList, thread, input) {
+        if (amount === 912678) {
+          await waitForWuStoryMessage();
+          appendWuStoryMessage(messageList, thread, { audioPath: pickWuAudioPath(), outgoing: false });
+          await waitForWuStoryMessage();
+          wuWalletBalance = Math.round((wuWalletBalance + amount) * 100) / 100;
+          appendWuStoryMessage(messageList, thread, {
+            transfer: { amount, note: "crush 退回转账", status: "已退还" },
+            outgoing: false
+          });
+          showWuCrushVoiceChoices(messageList, thread, input);
+          return;
+        }
+        if (amount === 520 || amount === 1314) {
+          await waitForWuStoryMessage();
+          appendWuStoryMessage(messageList, thread, {
+            transfer: { amount, note: "crush已领取", status: "已领取" },
+            outgoing: false
+          });
+          await waitForWuStoryMessage();
+          appendWuStoryMessage(messageList, thread, {
+            text: "这个是给我的吗？🥺",
+            outgoing: false
+          });
+          await waitForWuStoryMessage();
+          appendWuStoryMessage(messageList, thread, {
+            imagePath: "小清纯聊天/喵喵市到人类市机票.svg",
+            imageAlt: "从喵喵市飞往人类市的机票截图",
+            outgoing: false
+          });
+          await waitForWuStoryMessage();
+          appendWuStoryMessage(messageList, thread, {
+            text: "终于攒够去找你的钱啦",
+            outgoing: false
+          });
+          endWuCrushStory(messageList, thread, input, 3, "crush原来也喜欢我吗！老吴");
+          return;
+        }
+        await waitForWuStoryMessage();
+        appendWuStoryMessage(messageList, thread, {
+          text: "我帮你保管了！以后每天和我聊天就可以领啦。",
+          outgoing: false
+        });
+        await waitForWuStoryMessage();
+        appendWuStoryMessage(messageList, thread, {
+          imagePath: "小清纯聊天/被掐住.png",
+          imageAlt: "小谷被掐住的照片",
+          outgoing: true
+        });
+        await waitForWuStoryMessage();
+        appendWuStoryMessage(messageList, thread, {
+          text: "我的钱呢？快给我啊啊啊！",
+          outgoing: true
+        });
+        endWuCrushStory(messageList, thread, input, 2, "不要信任陌生人");
+      }
+
+      async function startWuCrushMoneyRequest(messageList, thread, input) {
+        appendWuStoryMessage(messageList, thread, {
+          text: "给你转了一百了呀，不够吗，还要多少呀。",
+          outgoing: true
+        });
+        await waitForWuStoryMessage();
+        appendWuStoryMessage(messageList, thread, { text: "把全部钱都给我！", outgoing: false });
+        wuCrushStoryPhase = "choice";
+        input.placeholder = "选择上方的回复继续对话";
+        renderWuStoryChoices(messageList, thread, input, [
+          { label: "老吴", action: "voice" },
+          { label: "把钱都给crush", action: "transfer" }
+        ]);
+      }
+
+      async function startWuCrushStory(messageList, thread, input) {
+        if (wuCrushStoryPhase !== "idle") return;
+        wuCrushStoryPhase = "playing";
+        input.placeholder = "互动对话进行中…";
+        appendWuStoryMessage(messageList, thread, { text: "小谷现在在干嘛呀？", outgoing: true });
+        await waitForWuStoryMessage();
+        appendWuStoryMessage(messageList, thread, { audioPath: pickWuAudioPath(), outgoing: false });
+        await waitForWuStoryMessage();
+        appendWuStoryMessage(messageList, thread, { text: "还能干嘛", outgoing: false });
+        await waitForWuStoryMessage();
+        appendWuStoryMessage(messageList, thread, {
+          imagePath: "小清纯聊天/趴凳子.png",
+          imageAlt: "小谷趴在凳子上的照片",
+          outgoing: false
+        });
+        wuCrushStoryPhase = "choice";
+        input.placeholder = "选择上方的回复继续对话";
+        renderWuStoryChoices(messageList, thread, input);
+      }
+
+      async function chooseWuCrushStory(action, choices, messageList, thread, input) {
+        if (wuCrushStoryPhase !== "choice") return;
+        wuCrushStoryPhase = "playing";
+        choices.querySelectorAll("button").forEach((button) => { button.disabled = true; });
+        choices.remove();
+        input.placeholder = "互动对话进行中…";
+        if (action === "voice") {
+          await exchangeWuCrushVoices(messageList, thread);
+          showWuCrushVoiceChoices(messageList, thread, input);
+          return;
+        }
+        if (action === "phone") {
+          appendWuStoryMessage(messageList, thread, {
+            text: "小谷你声音怎么听不见啊，手机是不是太旧了。",
+            outgoing: true
+          });
+          await waitForWuStoryMessage();
+          appendWuStoryMessage(messageList, thread, { text: "要你管，你又不给我钱。", outgoing: false });
+          await waitForWuStoryMessage();
+          appendWuStoryMessage(messageList, thread, { text: "啊，这么物质。", outgoing: true });
+          wuCrushStoryPhase = "choice";
+          input.placeholder = "选择上方的回复继续对话";
+          renderWuStoryChoices(messageList, thread, input, [
+            { label: "老吴", action: "voice" },
+            { label: "给你转了一百了呀，不够吗，还要多少呀。", action: "askMoney" }
+          ]);
+          return;
+        }
+        if (action === "askMoney") {
+          await startWuCrushMoneyRequest(messageList, thread, input);
+          return;
+        }
+        if (action === "transfer") {
+          openWuCrushTransfer(messageList, thread, input);
+          return;
+        }
+        if (action === "photo") {
+          appendWuStoryMessage(messageList, thread, { text: "你咋这么萌呀", outgoing: true });
+          await waitForWuStoryMessage();
+          appendWuStoryMessage(messageList, thread, { text: "有吗那这张呢", outgoing: false });
+          await waitForWuStoryMessage();
+          appendWuStoryMessage(messageList, thread, {
+            imagePath: "小清纯聊天/带帽子.png",
+            imageAlt: "小谷戴着帽子的照片",
+            outgoing: false
+          });
+          wuCrushStoryPhase = "choice";
+          input.placeholder = "选择上方的回复继续对话";
+          renderWuStoryChoices(messageList, thread, input, [
+            { label: "老吴", action: "voice" },
+            { label: "小谷你声音怎么听不见啊，手机是不是太旧了。", action: "phone" }
+          ]);
+          return;
+        }
+      }
+
+      function renderMessages(body) {
+        function renderInbox() {
+          body.innerHTML = `<p class="muted" style="margin:2px 2px 12px">模拟收件箱 · 6 条示例短信</p><div id="smsInbox"></div>`;
+          const inbox = $("#smsInbox");
+          const shuffledMessages = demoSmsMessages.slice();
+          for (let index = shuffledMessages.length - 1; index > 0; index -= 1) {
+            const swapIndex = Math.floor(Math.random() * (index + 1));
+            [shuffledMessages[index], shuffledMessages[swapIndex]] = [shuffledMessages[swapIndex], shuffledMessages[index]];
+          }
+          shuffledMessages.forEach((message) => {
+            const row = document.createElement("button");
+            row.className = "card message-row sms-row";
+            row.type = "button";
+            const avatar = document.createElement("div");
+            avatar.className = "avatar";
+            avatar.textContent = message.icon;
+            const copy = document.createElement("div");
+            copy.className = "message-copy";
+            const title = document.createElement("b");
+            title.textContent = message.sender;
+            const time = document.createElement("span");
+            time.textContent = message.time;
+            time.style.cssText = "float:right;color:#888;font-size:11px";
+            title.append(time);
+            const preview = document.createElement("span");
+            preview.textContent = message.text;
+            copy.append(title, preview);
+            row.append(avatar, copy);
+            row.addEventListener("click", () => renderThread(message));
+            inbox.append(row);
+          });
+        }
+
+        function renderThread(message) {
+          body.innerHTML = `<button class="sms-back" type="button" aria-label="返回信息列表">‹ 信息</button><div class="card"><div class="message-copy"><b class="sms-thread-sender"></b></div><div class="sms-thread-copy"><span class="sms-demo-label">模拟短信</span><div>今天 · 刚刚</div></div><div class="bubble sms-thread-message"></div></div>`;
+          $(".sms-thread-sender").textContent = message.sender;
+          $(".sms-thread-message").textContent = message.text;
+          $(".sms-back").addEventListener("click", renderInbox);
+        }
+
+        renderInbox();
+      }
+      function renderSettings(body) {
+        const rows = [["✈", "飞行模式"], ["◉", "Wi-Fi　 已连接"], ["ᛒ", "蓝牙　已打开"], ["▰", "蜂窝网络"], ["🔋", "电池"], ["⚙", "通用"], ["☼", "显示与亮度"], ["🔔", "通知"], ["🔒", "隐私与安全性"]];
+        body.innerHTML = `<div class="card" style="padding:4px 15px">${rows.map(([icon, name]) => `<div class="settings-row"><span class="settings-symbol">${icon}</span><span>${name}</span><span class="settings-arrow">›</span></div>`).join("")}</div><div class="card muted" style="text-align:center">iPhone 17 Pro　·　iOS 26.1</div>`;
+      }
+      function renderPhotos(body) {
+        body.innerHTML = `<p style="font-size:22px;font-weight:650;margin:4px 0 22px">图集</p><p class="muted">最近项目　·　24 张照片</p><div class="photo-grid">${["🏞️","🌅","🌊","🌸","🏙️","🐈","🍊","🌿","🌙","🎨","🌻","☁️"].map((item) => `<div class="photo-tile">${item}</div>`).join("")}</div>`;
+      }
+      function renderCamera(body) {
+        body.innerHTML = `<div class="camera-preview"></div><div class="camera-controls"><button class="flash-button" id="flashToggle" aria-label="闪光灯">ϟ</button><button class="shutter" id="shutter" aria-label="拍照"></button><span style="font-size:26px">◉</span></div>`;
+        $("#shutter").addEventListener("click", (event) => {
+          const shutter = event.currentTarget;
+          shutter.style.transform = "scale(.86)";
+          window.setTimeout(() => { shutter.style.transform = ""; }, 140);
+        });
+        $("#flashToggle").addEventListener("click", (event) => {
+          event.currentTarget.style.color = event.currentTarget.style.color ? "" : "#ffda68";
+        });
+      }
+      function renderSafari(body) {
+        const searchHistory = [
+          "幸福辖区是谁做的",
+          "幸福辖区攻略",
+          "迅雷云盘",
+          "去喵喵市怎么最快",
+          "喵喵币汇率",
+          "有没有可以带猫一起去的温泉"
+        ];
+        body.innerHTML = `<input class="safari-bar" id="safariSearch" type="search" placeholder="🔒　搜索或输入网址" aria-label="搜索或输入网址" autocomplete="off"><section class="safari-search-history" id="safariSearchHistory" aria-label="之前的搜索记录" hidden><div class="safari-history-title">搜索记录</div>${searchHistory.map((query) => `<button class="safari-history-item" type="button">${query}</button>`).join("")}</section><div class="safari-hero"><div class="big-compass">🧭</div><h2 style="margin:8px 0">Safari</h2><p class="muted">你的网络世界，由此开始</p></div><div class="quick-links">${[["🌐","Apple"],["📺","YouTube"],["🛍️","购物"],["📰","新闻"],["📍","地图"],["🔎","搜索"]].map(([icon, name]) => `<div class="quick-link"><i>${icon}</i>${name}</div>`).join("")}</div>`;
+        const searchInput = $("#safariSearch");
+        const historyPanel = $("#safariSearchHistory");
+        searchInput.addEventListener("focus", () => { historyPanel.hidden = false; });
+        searchInput.addEventListener("click", () => { historyPanel.hidden = false; });
+        historyPanel.querySelectorAll(".safari-history-item").forEach((item) => {
+          item.addEventListener("click", () => {
+            searchInput.value = item.textContent;
+            historyPanel.hidden = true;
+          });
+        });
+      }
+      function renderWeather(body) {
+        body.innerHTML = `<div style="padding:13px 3px 25px;text-align:center;color:#fff;background:linear-gradient(155deg,#64b8f5,#6482dc);border-radius:24px"><div style="font-size:17px">北京</div><div style="font-size:75px;font-weight:200;line-height:1.15">22°</div><div>晴朗</div><div class="muted" style="color:#eaf3ff;margin-top:6px">最高 25°　最低 16°</div></div><div class="card" style="margin-top:14px"><b>逐小时预报</b><div style="display:flex;justify-content:space-between;margin-top:18px;text-align:center;font-size:13px"><span>现在<br>☀️<br>22°</span><span>14时<br>☀️<br>24°</span><span>15时<br>🌤️<br>25°</span><span>16时<br>🌤️<br>23°</span><span>17时<br>☀️<br>21°</span></div></div><div class="card">空气质量　　<span style="color:#34a853">优 · 28</span></div>`;
+      }
+      function renderClock(body) {
+        body.innerHTML = `<div class="card" style="text-align:center;padding:35px 10px"><div style="font-size:67px;font-weight:200;font-variant-numeric:tabular-nums" id="clockAppTime">09:41</div><div class="muted">北京</div></div><div class="card"><div style="font-size:18px">⏱　世界时钟</div><div class="settings-row">🇺🇸　纽约 <span class="settings-arrow">前一天 21:41</span></div><div class="settings-row">🇬🇧　伦敦 <span class="settings-arrow">今天 02:41</span></div><div class="settings-row">🇯🇵　东京 <span class="settings-arrow">今天 10:41</span></div></div><div class="card" style="text-align:center;color:#ff9f0a">⏰　闹钟　　🌙　就寝　　⏱　秒表　　⌛　计时器</div>`;
+        const updateClock = () => {
+          const clock = $("#clockAppTime");
+          if (clock) clock.textContent = new Intl.DateTimeFormat("zh-CN", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }).format(new Date());
+        };
+        updateClock();
+        window.setInterval(updateClock, 1000);
+      }
+      function renderPhone(body) {
+        body.innerHTML = `<div class="card" style="text-align:center;padding:26px"><div style="font-size:13px;color:#888">个人收藏</div><div style="font-size:21px;margin:12px">常用联系人</div><div style="font-size:50px">👩🏻‍💻</div><b>林同学</b><p class="muted">最近通话　今天 09:12</p><button class="primary-button" id="callButton">拨打电话</button></div><div class="card"><div class="settings-row">📞　妈妈 <span class="settings-arrow">昨天</span></div><div class="settings-row">📞　快递小哥 <span class="settings-arrow">周一</span></div><div class="settings-row">📞　林同学 <span class="settings-arrow">周日</span></div></div>`;
+        $("#callButton").addEventListener("click", (event) => { event.currentTarget.textContent = "正在呼叫…"; window.setTimeout(() => { if (event.currentTarget.isConnected) event.currentTarget.textContent = "拨打电话"; }, 1800); });
+      }
+      function renderMusic(body) {
+        body.innerHTML = `<div class="card" style="padding:14px"><video id="musicTrack" controls playsinline preload="metadata" style="display:block;width:100%;max-height:210px;border-radius:12px;background:#111"></video><h3 style="margin:12px 0 3px;font-size:15px">[猫meme]老吴猫-惨叫猫</h3><div class="muted" style="font-size:12px">本地音乐 · 视频</div><p id="musicTrackStatus" class="muted" role="status" hidden style="margin:10px 0 0;font-size:12px"></p></div><div style="padding:20px 8px 30px;text-align:center"><div style="width:220px;height:220px;max-width:100%;margin:auto;border-radius:26px;display:grid;place-items:center;background:radial-gradient(circle at 30% 25%,#ffbe81,#ee6f8e 43%,#6544a9 77%,#202c71);font-size:78px;box-shadow:0 12px 35px #ae598344">♫</div><h2 style="margin:23px 0 2px">午夜城市</h2><div class="muted">Lo-fi Radio</div><div style="height:4px;background:#d7d7dc;border-radius:5px;margin:24px 0 7px"><div style="width:37%;height:100%;background:#777;border-radius:5px"></div></div><div class="muted" style="display:flex;justify-content:space-between"><span>1:24</span><span>3:48</span></div><div style="display:flex;justify-content:center;align-items:center;gap:40px;margin-top:28px;font-size:25px"><span>◀</span><button id="musicPlay" class="primary-button" style="width:56px;height:56px;border-radius:50%;font-size:21px">Ⅱ</button><span>▶</span></div></div>`;
+        const trackPath = "音频/[猫meme]老吴猫-惨叫猫_爱给网_aigei_com.mp4";
+        const track = $("#musicTrack");
+        track.src = new URL(trackPath.split("/").map(encodeURIComponent).join("/"), document.baseURI).href;
+        track.addEventListener("error", () => {
+          const status = $("#musicTrackStatus");
+          status.hidden = false;
+          status.textContent = "此浏览器无法解码该 MP4，请使用支持该格式的播放器打开原文件。";
+        });
+        $("#musicPlay").addEventListener("click", (event) => { event.currentTarget.textContent = event.currentTarget.textContent === "Ⅱ" ? "▶" : "Ⅱ"; });
+      }
+      function renderCalendar(body) {
+        body.innerHTML = `<section class="card" style="padding:24px 18px"><div class="muted" style="text-align:center">10月</div><div style="margin:10px 0;text-align:center;font-size:68px;font-weight:300;color:#e64947">27</div><h2 style="margin:0;text-align:center;font-size:18px">星期二　今天</h2><p class="muted" style="margin:8px 0 18px;text-align:center">选择今天的行程</p><label for="calendarPlan" style="display:block;padding:14px 0;border-top:1px solid #e8e8ec;border-bottom:1px solid #e8e8ec;color:#666;font-size:13px">行程</label><select id="calendarPlan" aria-label="选择行程" style="width:100%;min-height:48px;padding:0 10px;border:0;border-bottom:1px solid #e8e8ec;border-radius:0;background:#fff;color:#222;font-size:15px"><option value="" selected></option><option value="phone-all-day">24小时玩手机</option></select><p id="calendarPlanStatus" class="muted" role="status" style="min-height:18px;margin:12px 0 0;text-align:center">还没有选择行程</p></section>`;
+        $("#calendarPlan").addEventListener("change", (event) => {
+          $("#calendarPlanStatus").textContent = event.currentTarget.value ? "已选择：24小时玩手机" : "还没有选择行程";
+        });
+      }
+      function renderSimpleApp(body, id) {
+        const copy = {
+          calendar: ["10月", "27", "星期二　今天", "没有日程安排"],
+          maps: ["地图", "📍", "探索附近", "咖啡馆　　餐厅　　加油站"],
+          store: ["为你推荐", "✦", "探索精彩 App", "发现更多适合你的应用与游戏。"],
+          notes: ["备忘录", "📝", "快速记录灵感", "点按右下角，创建一条新备忘录。"],
+          health: ["健康", "♥", "今天", "活动圆环　　步数　　睡眠"],
+          wallet: ["钱包", "▣", "卡片与凭证", "添加银行卡、交通卡或登机牌。"]
+        }[id] || ["你好", "✦", "欢迎使用", "轻点屏幕，开始探索。"];
+        body.innerHTML = `<div class="card" style="text-align:center;padding:34px 15px"><div class="muted">${copy[0]}</div><div style="font-size:68px;margin:15px">${copy[1]}</div><h2>${copy[2]}</h2><p class="muted">${copy[3]}</p>${id === "notes" ? '<textarea placeholder="开始输入…" style="width:100%;height:100px;border:0;outline:0;resize:vertical;color:#222"></textarea>' : ""}</div>`;
+      }
+
+      function startGesture(event) {
+        if (!event.isPrimary || (event.pointerType === "mouse" && event.button !== 0)) return;
+        if (event.target.closest("button, input, textarea, .app-view, .control-center")) return;
+        swipeStart = { x: event.clientX, y: event.clientY, pointerId: event.pointerId };
+        event.currentTarget.setPointerCapture(event.pointerId);
+      }
+      function endGesture(event) {
+        if (!swipeStart || event.pointerId !== swipeStart.pointerId) return;
+        const dx = event.clientX - swipeStart.x;
+        const dy = event.clientY - swipeStart.y;
+        swipeStart = null;
+        if (Math.abs(dx) >= 48 && Math.abs(dx) > Math.abs(dy) * 1.2 && unlocked && homeScreen.classList.contains("active") && !appView.classList.contains("open") && !controlCenter.classList.contains("open")) {
+          setHomePage(homePageIndex + (dx < 0 ? 1 : -1));
+          return;
+        }
+        if (Math.abs(dy) < 48 || Math.abs(dy) < Math.abs(dx) * 1.2) return;
+        if (dy < 0 && !unlocked) unlock();
+        else if (dy < 0 && appView.classList.contains("open")) goHome();
+        else if (dy < 0 && controlCenter.classList.contains("open")) controlCenter.classList.remove("open");
+        else if (dy > 0 && unlocked && !appView.classList.contains("open") && !controlCenter.classList.contains("open")) controlCenter.classList.add("open");
+      }
+      $("#screen").addEventListener("pointerdown", startGesture);
+      $("#screen").addEventListener("pointerup", endGesture);
+      $("#screen").addEventListener("pointercancel", endGesture);
+      lockScreen.addEventListener("click", (event) => {
+        if (event.target.closest("button")) return;
+        unlock();
+      });
+      $("#homeIndicator").addEventListener("click", goHome);
+      document.querySelectorAll(".page-dot").forEach((dot) => dot.addEventListener("click", () => setHomePage(Number(dot.dataset.page))));
+      $("#island").addEventListener("click", () => $("#island").classList.toggle("expanded"));
+      $("#fullscreenToggle").addEventListener("click", async () => {
+        try {
+          if (document.fullscreenElement) await document.exitFullscreen();
+          else await document.documentElement.requestFullscreen();
+        } catch (error) {
+          console.error("Unable to toggle fullscreen mode.", error);
+          $("#fullscreenToggle").title = "全屏不可用；可以按 F11 切换浏览器全屏";
+        }
+      });
+      document.addEventListener("fullscreenchange", () => {
+        const fullscreen = Boolean(document.fullscreenElement);
+        $("#fullscreenToggle").setAttribute("aria-label", fullscreen ? "退出全屏" : "进入全屏");
+        $("#fullscreenToggle").title = fullscreen ? "退出全屏" : "进入全屏";
+      });
+      $("#lockCamera").addEventListener("click", () => { if (!unlocked) unlock(); openApp("camera"); });
+      $("#flashlight").addEventListener("click", (event) => {
+        flashlightOn = !flashlightOn;
+        event.currentTarget.style.background = flashlightOn ? "#fff" : "";
+        event.currentTarget.style.color = flashlightOn ? "#222" : "";
+      });
+      controlCenter.addEventListener("click", (event) => {
+        const button = event.target.closest(".cc-button");
+        if (button && button.getAttribute("aria-label")) button.classList.toggle("on");
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" || event.key === "Backspace") {
+          if (appView.classList.contains("open")) closeApp();
+          else if (controlCenter.classList.contains("open")) controlCenter.classList.remove("open");
+        }
+        if (event.key === " " && !appView.classList.contains("open")) {
+          event.preventDefault();
+          unlocked ? goHome() : unlock();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

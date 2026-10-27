@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="460" viewBox="0 0 720 460">
+  <rect width="720" height="460" rx="24" fill="#eef3f8"/>
+  <rect x="34" y="34" width="652" height="392" rx="22" fill="#fff"/>
+  <path d="M56 34h608a22 22 0 0 1 22 22v66H34V56a22 22 0 0 1 22-22z" fill="#2176ae"/>
+  <text x="66" y="82" fill="#fff" font-family="Arial, sans-serif" font-size="24" font-weight="700">MEOW AIR · 电子客票</text>
+  <text x="66" y="107" fill="#d9efff" font-family="Arial, sans-serif" font-size="13">登机凭证 / BOARDING PASS</text>
+  <text x="66" y="164" fill="#748496" font-family="Arial, sans-serif" font-size="15">出发 FROM</text>
+  <text x="66" y="205" fill="#18324a" font-family="Arial, sans-serif" font-size="34" font-weight="700">喵喵市</text>
+  <text x="514" y="164" fill="#748496" font-family="Arial, sans-serif" font-size="15">到达 TO</text>
+  <text x="514" y="205" fill="#18324a" font-family="Arial, sans-serif" font-size="34" font-weight="700">人类市</text>
+  <path d="M256 190h180" stroke="#90a9bc" stroke-width="3" stroke-dasharray="7 8"/>
+  <path d="m423 179 17 11-17 11" fill="none" stroke="#2176ae" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="66" y="258" fill="#748496" font-family="Arial, sans-serif" font-size="14">旅客 PASSENGER</text>
+  <text x="66" y="286" fill="#26394a" font-family="Arial, sans-serif" font-size="20" font-weight="700">小谷</text>
+  <text x="278" y="258" fill="#748496" font-family="Arial, sans-serif" font-size="14">航班 FLIGHT</text>
+  <text x="278" y="286" fill="#26394a" font-family="Arial, sans-serif" font-size="20" font-weight="700">MA-520</text>
+  <text x="514" y="258" fill="#748496" font-family="Arial, sans-serif" font-size="14">座位 SEAT</text>
+  <text x="514" y="286" fill="#26394a" font-family="Arial, sans-serif" font-size="20" font-weight="700">与你一起</text>
+  <path d="M52 316h616" stroke="#d7e0e8" stroke-width="2" stroke-dasharray="8 8"/>
+  <text x="66" y="354" fill="#748496" font-family="Arial, sans-serif" font-size="13">期待见面 · HAVE A LOVELY TRIP</text>
+  <text x="66" y="385" fill="#2176ae" font-family="Arial, sans-serif" font-size="18" font-weight="700">目的地：你身边</text>
+  <g fill="#203547">
+    <path d="M520 337h5v48h-5zm9 0h2v48h-2zm7 0h7v48h-7zm12 0h3v48h-3zm7 0h6v48h-6zm11 0h2v48h-2zm6 0h8v48h-8zm13 0h3v48h-3zm7 0h5v48h-5zm10 0h2v48h-2zm7 0h7v48h-7zm12 0h3v48h-3zm8 0h6v48h-6zm11 0h3v48h-3zm7 0h8v48h-8z"/>
+  </g>
+</svg>
